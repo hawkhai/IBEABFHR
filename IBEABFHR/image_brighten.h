@@ -13,4 +13,4 @@ private:
 };
 
 // wrapper
-void brighten(const cv::Mat& src, cv::Mat& dst);
+bool brighten(const cv::Mat& src, cv::Mat& dst, int arg, std::string& name);

@@ -1,4 +1,4 @@
-#include "image_brighten.h"
+﻿#include "image_brighten.h"
 #include <algorithm>
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -158,7 +158,69 @@ void ImageBrighten::fastHazeRemoval_3Channel(const cv::Mat& src, cv::Mat& dst)
 	dst = F;
 }
 
-void brighten(const cv::Mat& src, cv::Mat& dst)
+void splitv(const cv::Mat& rgb, std::vector<cv::Mat>& hsvli, cv::Mat& hsvV) {
+    cv::Mat hsv;
+    cv::cvtColor(rgb, hsv, cv::COLOR_BGR2HSV_FULL);
+    cv::split(hsv, hsvli);
+    hsvV = hsvli[2];
+}
+
+void mergev(std::vector<cv::Mat>& hsvli, const cv::Mat& hsvV, cv::Mat& rgb) {
+    hsvli[2] = hsvV;
+    cv::Mat hsv;
+    cv::merge(hsvli, hsv);
+    cv::cvtColor(hsv, rgb, cv::COLOR_HSV2BGR_FULL);
+}
+
+void applyClahe(cv::Mat& hsvV) {
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(1.0);
+    cv::Mat tempk;
+    clahe->apply(hsvV, tempk);//equalizeHist(labL, labL);
+    hsvV = tempk;
+}
+
+void applyBrighten(cv::Mat& hsvV) {
+    cv::Mat tempk;
+    ImageBrighten().brighten(hsvV, tempk);
+    hsvV = tempk;
+}
+
+bool brighten(const cv::Mat& src, cv::Mat& dst, int arg, std::string& name)
 {
-	ImageBrighten().brighten(src, dst);
+    std::vector<cv::Mat> hsvli;
+    cv::Mat hsvV;
+    splitv(src, hsvli, hsvV);
+
+    if (arg == 0) {
+        applyClahe(hsvV);
+        name = "CLAHE";
+    }
+    else if (arg == 1) {
+        applyBrighten(hsvV);
+        name = "brighten";
+    }
+    else if (arg == 2) {
+        ImageBrighten().brighten(src, dst);
+        name = "brighten3";
+        return true;
+    }
+    else if (arg == 3) {
+        applyClahe(hsvV);
+        name = "CLAHE";
+    }
+    else {
+        return false;
+    }
+
+    cv::Mat tempk;
+    mergev(hsvli, hsvV, tempk);
+
+    if (arg == 3) {
+        name = "CLAHE+brighten";
+        ImageBrighten().brighten(tempk, dst);
+    }
+    else {
+        dst = tempk;
+    }
+    return true;
 }
