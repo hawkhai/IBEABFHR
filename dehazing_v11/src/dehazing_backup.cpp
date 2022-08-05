@@ -54,27 +54,27 @@ dehazing::dehazing(int nW, int nH, bool bPrevFlag, bool bPosFlag)
 	m_nBottomRightY	= m_nHei;
 
 	// 동적 메모리 할당
-	m_pfSmallTransP	= new float [320*240];
-	m_pfSmallTrans	= new float [320*240];
-	m_pfSmallTransR	= new float [320*240];
+	m_pfSmallTransP	= new double [320*240];
+	m_pfSmallTrans	= new double [320*240];
+	m_pfSmallTransR	= new double [320*240];
 	m_pnSmallYImg		= new int [320*240];
 	m_pnSmallYImgP	= new int [320*240];
-	m_pfSmallInteg	= new float[320*240];
-	m_pfSmallDenom	= new float[320*240];
-	m_pfSmallY		= new float[320*240];
+	m_pfSmallInteg	= new double[320*240];
+	m_pfSmallDenom	= new double[320*240];
+	m_pfSmallY		= new double[320*240];
 
-	m_pfTransmission	= new float [m_nWid*m_nHei];
-	m_pfTransmissionR = new float[m_nWid*m_nHei];
+	m_pfTransmission	= new double [m_nWid*m_nHei];
+	m_pfTransmissionR = new double[m_nWid*m_nHei];
 	m_pnYImg			= new int [m_nWid*m_nHei];
-	m_pfInteg			= new float[m_nWid*m_nHei];
-	m_pfDenom			= new float[m_nWid*m_nHei];
-	m_pfY				= new float[m_nWid*m_nHei];
+	m_pfInteg			= new double[m_nWid*m_nHei];
+	m_pfDenom			= new double[m_nWid*m_nHei];
+	m_pfY				= new double[m_nWid*m_nHei];
 
-	m_pfSmallPk_p		= new float[m_nGBlockSize*m_nGBlockSize];
-	m_pfSmallNormPk	= new float[m_nGBlockSize*m_nGBlockSize];
-	m_pfPk_p			= new float[m_nGBlockSize*m_nGBlockSize];
-	m_pfNormPk		= new float[m_nGBlockSize*m_nGBlockSize];	
-	m_pfGuidedLUT		= new float[m_nGBlockSize*m_nGBlockSize];	
+	m_pfSmallPk_p		= new double[m_nGBlockSize*m_nGBlockSize];
+	m_pfSmallNormPk	= new double[m_nGBlockSize*m_nGBlockSize];
+	m_pfPk_p			= new double[m_nGBlockSize*m_nGBlockSize];
+	m_pfNormPk		= new double[m_nGBlockSize*m_nGBlockSize];	
+	m_pfGuidedLUT		= new double[m_nGBlockSize*m_nGBlockSize];	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ dehazing::dehazing(int nW, int nH, bool bPrevFlag, bool bPosFlag)
 //		- m_fGSigma : 10.0f (Look-Up Table 용 파라미터)
 //		- m_nTopLeftX,Y & m_nBottomRightX,Y : Airlight 검출 범위
 //////////////////////////////////////////////////////////////////////////
-dehazing::dehazing(int nW, int nH, bool bPrevFlag, bool bPosFlag, float fL1, float fL2)
+dehazing::dehazing(int nW, int nH, bool bPrevFlag, bool bPosFlag, double fL1, double fL2)
 {
 	// (1) 입력 파라미터에 맞추어 dehazing 클래스 생성
 	// nW : 너비
@@ -130,27 +130,27 @@ dehazing::dehazing(int nW, int nH, bool bPrevFlag, bool bPosFlag, float fL1, flo
 	m_nBottomRightY	= m_nHei;
 
 	// 동적 메모리 할당
-	m_pfSmallTransP		= new float [320*240];
-	m_pfSmallTrans		= new float [320*240];
-	m_pfSmallTransR		= new float [320*240];
+	m_pfSmallTransP		= new double [320*240];
+	m_pfSmallTrans		= new double [320*240];
+	m_pfSmallTransR		= new double [320*240];
 	m_pnSmallYImg		= new int [320*240];
 	m_pnSmallYImgP		= new int [320*240];
-	m_pfSmallInteg		= new float[320*240];
-	m_pfSmallDenom		= new float[320*240];
-	m_pfSmallY			= new float[320*240];
+	m_pfSmallInteg		= new double[320*240];
+	m_pfSmallDenom		= new double[320*240];
+	m_pfSmallY			= new double[320*240];
 
-	m_pfTransmission	= new float [m_nWid*m_nHei];
-	m_pfTransmissionR	= new float[m_nWid*m_nHei];
+	m_pfTransmission	= new double [m_nWid*m_nHei];
+	m_pfTransmissionR	= new double[m_nWid*m_nHei];
 	m_pnYImg			= new int [m_nWid*m_nHei];
-	m_pfInteg			= new float[m_nWid*m_nHei];
-	m_pfDenom			= new float[m_nWid*m_nHei];
-	m_pfY				= new float[m_nWid*m_nHei];
+	m_pfInteg			= new double[m_nWid*m_nHei];
+	m_pfDenom			= new double[m_nWid*m_nHei];
+	m_pfY				= new double[m_nWid*m_nHei];
 
-	m_pfSmallPk_p		= new float[m_nGBlockSize*m_nGBlockSize];
-	m_pfSmallNormPk		= new float[m_nGBlockSize*m_nGBlockSize];
-	m_pfPk_p			= new float[m_nGBlockSize*m_nGBlockSize];
-	m_pfNormPk			= new float[m_nGBlockSize*m_nGBlockSize];	
-	m_pfGuidedLUT		= new float[m_nGBlockSize*m_nGBlockSize];	
+	m_pfSmallPk_p		= new double[m_nGBlockSize*m_nGBlockSize];
+	m_pfSmallNormPk		= new double[m_nGBlockSize*m_nGBlockSize];
+	m_pfPk_p			= new double[m_nGBlockSize*m_nGBlockSize];
+	m_pfNormPk			= new double[m_nGBlockSize*m_nGBlockSize];	
+	m_pfGuidedLUT		= new double[m_nGBlockSize*m_nGBlockSize];	
 }
 
 dehazing::~dehazing(void)
@@ -257,9 +257,9 @@ void dehazing::AirlightEstimation(IplImage* imInput)
 	double dpScore[3];
 	double dpMean[3];
 	double dpStds[3];
-	float afMean[4] = {0};
-	float afScore[4] = {0};
-	float nMaxScore = 0;
+	double afMean[4] = {0};
+	double afScore[4] = {0};
+	double nMaxScore = 0;
 
 	// 입력 너비, 높이, 3채널을 위한 widthstep
 	int nW = imInput->width;
@@ -305,7 +305,7 @@ void dehazing::AirlightEstimation(IplImage* imInput)
 		dpScore[1] = dpMean[1]-dpStds[1];
 		dpScore[2] = dpMean[2]-dpStds[2];
 
-		afScore[0] = (float)(dpScore[0]+dpScore[1]+dpScore[2]);
+		afScore[0] = (double)(dpScore[0]+dpScore[1]+dpScore[2]);
 
 		// 최대값
 		nMaxScore = afScore[0];
@@ -323,7 +323,7 @@ void dehazing::AirlightEstimation(IplImage* imInput)
 		dpScore[1] = dpMean[1]-dpStds[1];
 		dpScore[2] = dpMean[2]-dpStds[2];
 
-		afScore[1] = (float)(dpScore[0]+dpScore[1]+dpScore[2]);
+		afScore[1] = (double)(dpScore[0]+dpScore[1]+dpScore[2]);
 		// 최대값 추출
 		if(afScore[1] > nMaxScore)
 		{
@@ -343,7 +343,7 @@ void dehazing::AirlightEstimation(IplImage* imInput)
 		dpScore[1] = dpMean[1]-dpStds[1];
 		dpScore[2] = dpMean[2]-dpStds[2];
 
-		afScore[2] = (float)(dpScore[0]+dpScore[1]+dpScore[2]);
+		afScore[2] = (double)(dpScore[0]+dpScore[1]+dpScore[2]);
 		// 최대값 추출
 		if(afScore[2] > nMaxScore)
 		{
@@ -363,7 +363,7 @@ void dehazing::AirlightEstimation(IplImage* imInput)
 		dpScore[1] = dpMean[1]-dpStds[1];
 		dpScore[2] = dpMean[2]-dpStds[2];
 
-		afScore[3] = (float)(dpScore[0]+dpScore[1]+dpScore[2]);
+		afScore[3] = (double)(dpScore[0]+dpScore[1]+dpScore[2]);
 
 		// 최대값 추출
 		if(afScore[3] > nMaxScore)
@@ -398,9 +398,9 @@ void dehazing::AirlightEstimation(IplImage* imInput)
 			for(nX=0; nX<nW; nX++)
 			{
 				// 255-r, 255-g, 255-b의 거리계산
-				nDistance = int(sqrt(float(255-(uchar)imInput->imageData[nY*nStep+nX*3])*float(255-(uchar)imInput->imageData[nY*nStep+nX*3])
-					+float(255-(uchar)imInput->imageData[nY*nStep+nX*3+1])*float(255-(uchar)imInput->imageData[nY*nStep+nX*3+1])
-					+float(255-(uchar)imInput->imageData[nY*nStep+nX*3+2])*float(255-(uchar)imInput->imageData[nY*nStep+nX*3+2])));
+				nDistance = int(sqrt(double(255-(uchar)imInput->imageData[nY*nStep+nX*3])*double(255-(uchar)imInput->imageData[nY*nStep+nX*3])
+					+double(255-(uchar)imInput->imageData[nY*nStep+nX*3+1])*double(255-(uchar)imInput->imageData[nY*nStep+nX*3+1])
+					+double(255-(uchar)imInput->imageData[nY*nStep+nX*3+2])*double(255-(uchar)imInput->imageData[nY*nStep+nX*3+2])));
 				if(nMinDistance > nDistance)
 				{
 					// 255-r, 255-g, 255-b의 거리로 가장 밝은 RGB 픽셀 검색
@@ -436,10 +436,10 @@ void dehazing::DownsampleImage()
 {
 	int nX, nY;
 
-	float fRatioY, fRatioX;
+	double fRatioY, fRatioX;
 	// 다운샘플링 비율 결정
-	fRatioX = (float)m_nWid/(float)320;
-	fRatioY = (float)m_nHei/(float)240;
+	fRatioX = (double)m_nWid/(double)320;
+	fRatioY = (double)m_nHei/(double)240;
 
 	for(nY=0; nY<240; nY++)
 	{
@@ -464,10 +464,10 @@ void dehazing::UpsampleImage()
 {
 	int nX, nY;
 
-	float fRatioY, fRatioX;
+	double fRatioY, fRatioX;
 	// 업샘플링 비율 결정
-	fRatioX = (float)320/(float)m_nWid;
-	fRatioY = (float)240/(float)m_nHei;
+	fRatioX = (double)320/(double)m_nWid;
+	fRatioY = (double)240/(double)m_nHei;
 
 	for(nY=0; nY<m_nHei; nY++)
 	{
@@ -497,7 +497,7 @@ void dehazing::UpsampleImage()
 void dehazing::TransmissionEstimation(int nFrame)
 {
 	int nX, nY, nXstep, nYstep;
-	float fTrans;
+	double fTrans;
 
 	// (1) 이전 프레임 데이터를 사용할것인지 확인
 	if(m_bPreviousFlag == true&&nFrame>0)
@@ -560,7 +560,7 @@ void dehazing::TransmissionEstimation(int nFrame)
 // 출력
 //		- fOptTrs : 최적의 전달량
 //////////////////////////////////////////////////////////////////////////
-float dehazing::NFTrsEstimation(int nStartX, int nStartY)
+double dehazing::NFTrsEstimation(int nStartX, int nStartY)
 {
 	int nCounter;	
 	int nX, nY;		
@@ -571,10 +571,10 @@ float dehazing::NFTrsEstimation(int nStartX, int nStartY)
 	int nSquaredOut;				// 복원 영상의 제곱
 	int nSumofOuts;					// 복원 영상의 합
 	int nSumofSquaredOuts;			// 복원 영상 제곱의 합
-	float fTrans, fOptTrs;			// fTrans : 전달량(nCounter에 따라 증가), fOptTrs : 최적 전달량 (리턴값)
+	double fTrans, fOptTrs;			// fTrans : 전달량(nCounter에 따라 증가), fOptTrs : 최적 전달량 (리턴값)
 	int nTrans;						// 정수화 시킨 전달량
 	int nSumofSLoss;				// nSumofLoss 복원 영상의 loss 합
-	float fCost, fMinCost, fMean;	// fCost : 비용함수 계산, fMinCost : 비용함수 최소값, fMean:복원 영상의 평균값
+	double fCost, fMinCost, fMean;	// fCost : 비용함수 계산, fMinCost : 비용함수 최소값, fMean:복원 영상의 평균값
 	int nNumberofPixels, nLossCount;// nNumberofPixels : 블록 크기, nLossCount: 손실 픽셀 개수
 
 	nEndX = __min(nStartX+m_nTBlockSize, 320); // 블록의 끝점 (x)
@@ -619,9 +619,9 @@ float dehazing::NFTrsEstimation(int nStartX, int nStartY)
 				nSumofOuts += nOut;
 			}
 		}
-		fMean = (float)(nSumofOuts)/(float)(nNumberofPixels);  // 평균 계산
-		fCost = m_fLambda1 * (float)nSumofSLoss/(float)(nNumberofPixels) // 손실 계산
-			- ((float)nSumofSquaredOuts/(float)nNumberofPixels - fMean*fMean); // 대조비 계산(분산 variance)
+		fMean = (double)(nSumofOuts)/(double)(nNumberofPixels);  // 평균 계산
+		fCost = m_fLambda1 * (double)nSumofSLoss/(double)(nNumberofPixels) // 손실 계산
+			- ((double)nSumofSquaredOuts/(double)nNumberofPixels - fMean*fMean); // 대조비 계산(분산 variance)
 		// (4) -variance 및 loss를 최소로 하는 전달량 검출
 		// 최적의 전달량 검색
 		if(nCounter==0 || fMinCost > fCost)
@@ -651,23 +651,23 @@ float dehazing::NFTrsEstimation(int nStartX, int nStartY)
 // 출력
 //		- fOptTrs : 최적의 전달량
 //////////////////////////////////////////////////////////////////////////
-float dehazing::NFTrsEstimationP(int nStartX, int nStartY)
+double dehazing::NFTrsEstimationP(int nStartX, int nStartY)
 {
 	int nCounter;	// for find out transmission 0.1~1.0, 10 iteration 
 	int nX, nY;		// variable for index
 	int nEndX;
 	int nEndY;
 
-	float fMean;
+	double fMean;
 
 	int nOut;								// 복원 영상 값
-	float fPreTrs;							// 이전 블록의 전달량				
+	double fPreTrs;							// 이전 블록의 전달량				
 	int nSquaredOut;						// 복원 영상의 제곱
 	int nSumofOuts;							// 복원 영상 값의 합
 	int nSumofSquaredOuts;					// 복원 영상 제곱의 합
 	int nTrans;								// 정수화한 전달량	
 	int nSumofSLoss;						// 손실의 합
-	float fCost, fMinCost, fTrans, fOptTrs;	// fCost: 비용함수, fMinCost: 최소의 비용함수, fTrans: 전달량(nCounter에 따라 증가), fOptTrs(최적의 전달량)
+	double fCost, fMinCost, fTrans, fOptTrs;	// fCost: 비용함수, fMinCost: 최소의 비용함수, fTrans: 전달량(nCounter에 따라 증가), fOptTrs(최적의 전달량)
 	int nNumberofPixels;					// nNumberofPixels: 블록의 크기
 
 	nEndX = __min(nStartX+m_nTBlockSize, 320); // 블록의 끝점 (x)
@@ -679,11 +679,11 @@ float dehazing::NFTrsEstimationP(int nStartX, int nStartY)
 	nTrans = 427;	//1280;
 	fPreTrs = 0;
 
-	float fNewKSum = 0;						// 가중치 적용한 kappa 합 (트랜스 미션 변화량)
-	float fNewK;							// 가중치 적용한 새로운 Kappa값
-	float fWi;								// 가중치
-	float fPreJ;							// 이전 프레임 데이터(에러처리 위해)
-	float fWsum = 0;						// 가중치 합
+	double fNewKSum = 0;						// 가중치 적용한 kappa 합 (트랜스 미션 변화량)
+	double fNewK;							// 가중치 적용한 새로운 Kappa값
+	double fWi;								// 가중치
+	double fPreJ;							// 이전 프레임 데이터(에러처리 위해)
+	double fWsum = 0;						// 가중치 합
 	int nIdx = 0;	
 	int nLossCount;
 	// (1) 지정된 블록에서 이전 프레임의 전달량 업데이트(밝기 변화에 따른 전달량 보정)
@@ -691,11 +691,11 @@ float dehazing::NFTrsEstimationP(int nStartX, int nStartY)
 	{
 		for(nX=nStartX; nX<nEndX; nX++)
 		{
-			fPreJ = (float)(m_pnSmallYImgP[nY*320+nX]-m_nAirlight);	// 에러 처리위한 계산(분모가 0이되는 상황을 피하기 위함. 분모가 0일경우 계산하지 않음)
+			fPreJ = (double)(m_pnSmallYImgP[nY*320+nX]-m_nAirlight);	// 에러 처리위한 계산(분모가 0이되는 상황을 피하기 위함. 분모가 0일경우 계산하지 않음)
 			if(fPreJ != 0){
 				fWi = m_pfExpLUT[abs(m_pnSmallYImg[nY*320+nX]-m_pnSmallYImgP[nY*320+nX])];//가중치 계산
 				fWsum += fWi;	
-				fNewKSum += fWi*(float)(m_pnSmallYImg[nY*320+nX]-m_nAirlight)/fPreJ;
+				fNewKSum += fWi*(double)(m_pnSmallYImg[nY*320+nX]-m_nAirlight)/fPreJ;
 			}
 		}
 	}
@@ -735,11 +735,11 @@ float dehazing::NFTrsEstimationP(int nStartX, int nStartY)
 			}
 		}
 		// 복원 값의 평균
-		fMean = (float)(nSumofOuts)/(float)(nNumberofPixels);
+		fMean = (double)(nSumofOuts)/(double)(nNumberofPixels);
 		// 비용함수 계산
-		fCost = m_fLambda1 * (float)nSumofSLoss/(float)(nNumberofPixels)// 손실
-			- ((float)nSumofSquaredOuts/(float)nNumberofPixels - fMean*fMean)	// 대조비
-			+ m_fLambda2/fPreTrs/fPreTrs*fWsum/(float)nNumberofPixels*((fPreTrs-fTrans)*(fPreTrs-fTrans)*255.0f*255.0f);//이전 프레임 데이터 fPreTrs/fPreTrs*fWsum/(float)nNumberofPixels : 크기를 맞추어주기위한 셋팅값
+		fCost = m_fLambda1 * (double)nSumofSLoss/(double)(nNumberofPixels)// 손실
+			- ((double)nSumofSquaredOuts/(double)nNumberofPixels - fMean*fMean)	// 대조비
+			+ m_fLambda2/fPreTrs/fPreTrs*fWsum/(double)nNumberofPixels*((fPreTrs-fTrans)*(fPreTrs-fTrans)*255.0f*255.0f);//이전 프레임 데이터 fPreTrs/fPreTrs*fWsum/(double)nNumberofPixels : 크기를 맞추어주기위한 셋팅값
 
 		// (5) -variance, loss, 이전 프레임간의 차이를 최소로 하는 전달량 검출
 		// 최적 전달량 검색
@@ -770,7 +770,7 @@ void dehazing::MakeExpLUT()
 	for ( nIdx = 0 ; nIdx < 256; nIdx++ )
 	{
 		// (1) 이전프레임 데이터를 이용할 때 쓰는 exp함수를 위한 LUT 생성
-		m_pfExpLUT[nIdx] = exp(-(float)(nIdx*nIdx)/10.0f);
+		m_pfExpLUT[nIdx] = exp(-(double)(nIdx*nIdx)/10.0f);
 	}
 }
 
@@ -808,14 +808,14 @@ void dehazing::GuideLUTMaker()
 // 출력
 //		- m_pucGammaLUT : 감마 복원을 위한 LUT
 //////////////////////////////////////////////////////////////////////////
-void dehazing::GammaLUTMaker(float fParameter)
+void dehazing::GammaLUTMaker(double fParameter)
 {
 	int nIdx;
 
 	// (1) 감마 복원을 위한 LUT 생성
 	for(nIdx=0; nIdx<256; nIdx++)
 	{
-		m_pucGammaLUT[nIdx] = (uchar)(pow((float)nIdx/255, fParameter)*255.0f);
+		m_pucGammaLUT[nIdx] = (uchar)(pow((double)nIdx/255, fParameter)*255.0f);
 	}
 }
 
@@ -859,18 +859,18 @@ void dehazing::GuidedFilter(int nW, int nH)
 
 	int nYb, nXb, nYa, nXa;
 	int nIdxA, nIdxB, nI;
-	float fDenom, fNormV1, fMeanI;		// fDenom:분모, fNormV1: b를 위한 축, fMeanI: 입력 영상 평균
-	float fAk, fBk;						// fAk : a*I+b 중 a , fBk : a*I+b 중 b
+	double fDenom, fNormV1, fMeanI;		// fDenom:분모, fNormV1: b를 위한 축, fMeanI: 입력 영상 평균
+	double fAk, fBk;						// fAk : a*I+b 중 a , fBk : a*I+b 중 b
 
 	__m128 sseMean, sseY, ssePk_p, sseDenom, sseInteg, sseNormPk,	// SSE를 위한 변수
 		sseAk, sseBk, sseP, sseNormV1, sseGauss, sseBkV1, sseQ;
 
-	// 변수 초기화 및 float 형 변환
+	// 변수 초기화 및 double 형 변환
 	for ( nYb = 0 ; nYb < nH; nYb++ )
 	{
 		for ( nXb = 0; nXb < nW; nXb++ )
 		{
-			m_pfSmallY[nYb*nW+nXb]=(float)m_pnSmallYImg[nYb*nW+nXb];
+			m_pfSmallY[nYb*nW+nXb]=(double)m_pnSmallYImg[nYb*nW+nXb];
 			m_pfSmallInteg[nYb*nW+nXb]=0;
 			m_pfSmallDenom[nYb*nW+nXb]=0;
 		}
@@ -904,7 +904,7 @@ void dehazing::GuidedFilter(int nW, int nH)
 
 			for ( nI = 0 ; nI < 4; nI++ )
 			{
-				fMeanI += *((float*)(&sseMean)+nI);
+				fMeanI += *((double*)(&sseMean)+nI);
 			}
 
 			fMeanI = fMeanI/(m_nGBlockSize*m_nGBlockSize);
@@ -924,7 +924,7 @@ void dehazing::GuidedFilter(int nW, int nH)
 
 					for ( nI = 0 ; nI < 4; nI++)
 					{
-						m_pfSmallPk_p[nYb*m_nGBlockSize+nXb+nI] = *((float*)(&ssePk_p)+nI);
+						m_pfSmallPk_p[nYb*m_nGBlockSize+nXb+nI] = *((double*)(&ssePk_p)+nI);
 					}
 				}
 			}
@@ -943,7 +943,7 @@ void dehazing::GuidedFilter(int nW, int nH)
 
 			for ( nI = 0 ; nI < 4; nI++ )
 			{
-				fDenom += *((float*)(&sseDenom)+nI);
+				fDenom += *((double*)(&sseDenom)+nI);
 			}
 
 			sseDenom = _mm_set1_ps(sqrt(fDenom));
@@ -978,7 +978,7 @@ void dehazing::GuidedFilter(int nW, int nH)
 
 				// (6) b = q'norm_v1
 				for ( nI = 0 ; nI < 4; nI++ )
-					fBk += *((float*)(&sseBk)+nI);
+					fBk += *((double*)(&sseBk)+nI);
 			}
 			else
 			{
@@ -990,7 +990,7 @@ void dehazing::GuidedFilter(int nW, int nH)
 
 					for ( nI = 0 ; nI < 4; nI++ )
 					{
-						m_pfSmallNormPk[nIdxB+nI] = *((float*)(&sseNormPk)+nI);
+						m_pfSmallNormPk[nIdxB+nI] = *((double*)(&sseNormPk)+nI);
 					}
 				}
 
@@ -1012,8 +1012,8 @@ void dehazing::GuidedFilter(int nW, int nH)
 
 				for ( nI = 0 ; nI < 4; nI++ )
 				{
-					fAk += *((float*)(&sseAk)+nI);
-					fBk += *((float*)(&sseBk)+nI);
+					fAk += *((double*)(&sseAk)+nI);
+					fBk += *((double*)(&sseBk)+nI);
 				}
 			}
 
@@ -1036,8 +1036,8 @@ void dehazing::GuidedFilter(int nW, int nH)
 					// (10) m_pfSmallDenom 에 블록의 weighted_denom 더함
 					for ( nI = 0 ; nI < 4; nI++ )
 					{
-						m_pfSmallInteg[nIdxA+nYb*nW+nXb+nI] += *((float*)(&sseInteg)+nI);
-						m_pfSmallDenom[nIdxA+nYb*nW+nXb+nI] += *((float*)(&sseGauss)+nI);
+						m_pfSmallInteg[nIdxA+nYb*nW+nXb+nI] += *((double*)(&sseInteg)+nI);
+						m_pfSmallDenom[nIdxA+nYb*nW+nXb+nI] += *((double*)(&sseGauss)+nI);
 					}
 				}
 			}
@@ -1053,7 +1053,7 @@ void dehazing::GuidedFilter(int nW, int nH)
 		sseQ = _mm_div_ps(sseInteg, sseDenom);
 
 		for( nI = 0; nI < 4; nI++)
-			m_pfSmallTransR[nIdxA+nI] = *((float*)(&sseQ)+nI);
+			m_pfSmallTransR[nIdxA+nI] = *((double*)(&sseQ)+nI);
 	}
 }
 //////////////////////////////////////////////////////////////////////////
@@ -1095,31 +1095,31 @@ void dehazing::GuidedFilter()
 	int nHeiL = m_nHei;							// 높이
 	int nWidL = m_nWid;							// 너비
 	// local 변수 선언
-	float* pfYL = m_pfY;						
-	float* pfIntegL = m_pfInteg;
-	float* pfDenomL = m_pfDenom;
+	double* pfYL = m_pfY;						
+	double* pfIntegL = m_pfInteg;
+	double* pfDenomL = m_pfDenom;
 	int* pnYImgL = m_pnYImg;
-	float* pfPk_pL = m_pfPk_p;
-	float* pfNormPkL = m_pfNormPk;
-	float* pfGuidedLUTL = m_pfGuidedLUT;
-	float* pfTransmissionL = m_pfTransmission;
+	double* pfPk_pL = m_pfPk_p;
+	double* pfNormPkL = m_pfNormPk;
+	double* pfGuidedLUTL = m_pfGuidedLUT;
+	double* pfTransmissionL = m_pfTransmission;
 
 	int nWstep = nEPBlockSizeL/nStep;			// 스텝 사이즈 x축
 	int nHstep = nEPBlockSizeL/nStep;			// 스텝 사이즈 y축
 
-	float fDenom, fNormV1, fMeanI;				// fDenom:분모, fNormV1: b를 위한 축, fMeanI: 입력 영상 평균
-	float fAk = 0.0f;							// fAk : a*I+b 중 a , fBk : a*I+b 중 b
-	float fBk = 0.0f;
+	double fDenom, fNormV1, fMeanI;				// fDenom:분모, fNormV1: b를 위한 축, fMeanI: 입력 영상 평균
+	double fAk = 0.0f;							// fAk : a*I+b 중 a , fBk : a*I+b 중 b
+	double fBk = 0.0f;
 	int nIdxA, nYa, nXa, nYb, nXb, nI, nIdxB;	//  indexing용 변수
 	__m128 sseMean, sseY, ssePk_p, sseDenom, sseInteg, sseNormPk, 
 		sseAk, sseBk, sseP, sseNormV1, sseGauss, sseBkV1,	sseQ;
 	
-	// 변수 초기화 및 float 형 변환
+	// 변수 초기화 및 double 형 변환
 	for ( nYb = 0 ; nYb < nHeiL; nYb++ )
 	{
 		for ( nXb = 0; nXb < nWidL; nXb++ )
 		{
-			pfYL[nYb*nWidL+nXb]=(float)pnYImgL[nYb*nWidL+nXb];
+			pfYL[nYb*nWidL+nXb]=(double)pnYImgL[nYb*nWidL+nXb];
 			pfIntegL[nYb*nWidL+nXb]=0;
 			pfDenomL[nYb*nWidL+nXb]=0;
 		}
@@ -1151,7 +1151,7 @@ void dehazing::GuidedFilter()
 
 			for ( nI = 0 ; nI < 4; nI++ )
 			{
-				fMeanI += *((float*)(&sseMean)+nI);
+				fMeanI += *((double*)(&sseMean)+nI);
 			}
 
 			fMeanI = fMeanI/(nEPBlockSizeL*nEPBlockSizeL);
@@ -1169,7 +1169,7 @@ void dehazing::GuidedFilter()
 
 					for ( nI = 0 ; nI < 4; nI++)
 					{
-						pfPk_pL[nYb*nEPBlockSizeL+nXb+nI] = *((float*)(&ssePk_p)+nI);
+						pfPk_pL[nYb*nEPBlockSizeL+nXb+nI] = *((double*)(&ssePk_p)+nI);
 					}
 				}
 			}
@@ -1187,7 +1187,7 @@ void dehazing::GuidedFilter()
 
 			for ( nI = 0 ; nI < 4; nI++ )
 			{
-				fDenom += *((float*)(&sseDenom)+nI);
+				fDenom += *((double*)(&sseDenom)+nI);
 			}
 
 			sseDenom = _mm_set1_ps(sqrt(fDenom));
@@ -1214,7 +1214,7 @@ void dehazing::GuidedFilter()
 				}
 				// (6) b = q'norm_v1
 				for ( nI = 0 ; nI < 4; nI++ )
-					fBk += *((float*)(&sseBk)+nI);
+					fBk += *((double*)(&sseBk)+nI);
 			}
 			else
 			{
@@ -1226,7 +1226,7 @@ void dehazing::GuidedFilter()
 
 					for ( int nI = 0 ; nI < 4; nI++ )
 					{
-						pfNormPkL[nIdxB+nI] = *((float*)(&sseNormPk)+nI);
+						pfNormPkL[nIdxB+nI] = *((double*)(&sseNormPk)+nI);
 					}
 				}
 
@@ -1247,8 +1247,8 @@ void dehazing::GuidedFilter()
 
 				for ( nI = 0 ; nI < 4; nI++ )
 				{
-					fAk += *((float*)(&sseAk)+nI);
-					fBk += *((float*)(&sseBk)+nI);
+					fAk += *((double*)(&sseAk)+nI);
+					fBk += *((double*)(&sseBk)+nI);
 				}
 			}
 					
@@ -1268,8 +1268,8 @@ void dehazing::GuidedFilter()
 					// (10) m_pfSmallDenom 에 블록의 weighted_denom 더함
 					for ( nI = 0 ; nI < 4; nI++ )
 					{
-						pfIntegL[nIdxA+nYb*nWidL+nXb+nI] += *((float*)(&sseInteg)+nI);
-						pfDenomL[nIdxA+nYb*nWidL+nXb+nI] += *((float*)(&sseGauss)+nI);
+						pfIntegL[nIdxA+nYb*nWidL+nXb+nI] += *((double*)(&sseInteg)+nI);
+						pfDenomL[nIdxA+nYb*nWidL+nXb+nI] += *((double*)(&sseGauss)+nI);
 					}
 				}
 			}
@@ -1285,7 +1285,7 @@ void dehazing::GuidedFilter()
 		sseQ = _mm_div_ps(sseInteg, sseDenom);
 
 		for( int nI = 0; nI < 4; nI++)
-			m_pfTransmissionR[nIdx+nI] = *((float*)(&sseQ)+nI);
+			m_pfTransmissionR[nIdx+nI] = *((double*)(&sseQ)+nI);
 	}
 }
 //////////////////////////////////////////////////////////////////////////
@@ -1316,7 +1316,7 @@ void dehazing::CopyTo(int* pnSrc, int* pnDst)
 // 출력
 //		- pfDst : 출력영상
 //////////////////////////////////////////////////////////////////////////
-void dehazing::CopyTo(float* pfSrc, float* pfDst)
+void dehazing::CopyTo(double* pfSrc, double* pfDst)
 {
 	int nIdx;
 
@@ -1347,11 +1347,11 @@ void dehazing::RestoreImage(IplImage* imInput, IplImage* imOutput)
 	int nStep = imInput->widthStep;
 
 	int nX, nY;
-	float fA_R, fA_G, fA_B;
+	double fA_R, fA_G, fA_B;
 
-	fA_B = (float)m_anAirlight[0];
-	fA_G = (float)m_anAirlight[1];
-	fA_R = (float)m_anAirlight[2];
+	fA_B = (double)m_anAirlight[0];
+	fA_G = (double)m_anAirlight[1];
+	fA_R = (double)m_anAirlight[2];
 
 	// (1) 후처리 결과 영상 획득 유무 결정
 	if(m_bPostFlag == true)
@@ -1367,9 +1367,9 @@ void dehazing::RestoreImage(IplImage* imInput, IplImage* imOutput)
 			for(nX=0; nX<m_nWid; nX++)
 			{			
 				// (3) Gamma correction LUT을 이용하여 값 보정
-				imOutput->imageData[nY*nStep+nX*3]	 = (uchar)m_pucGammaLUT[(uchar)CLIP((((float)((uchar)imInput->imageData[nY*nStep+nX*3+0])-fA_B)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_B))];
-				imOutput->imageData[nY*nStep+nX*3+1] = (uchar)m_pucGammaLUT[(uchar)CLIP((((float)((uchar)imInput->imageData[nY*nStep+nX*3+1])-fA_G)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_G))];
-				imOutput->imageData[nY*nStep+nX*3+2] = (uchar)m_pucGammaLUT[(uchar)CLIP((((float)((uchar)imInput->imageData[nY*nStep+nX*3+2])-fA_R)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_R))];
+				imOutput->imageData[nY*nStep+nX*3]	 = (uchar)m_pucGammaLUT[(uchar)CLIP((((double)((uchar)imInput->imageData[nY*nStep+nX*3+0])-fA_B)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_B))];
+				imOutput->imageData[nY*nStep+nX*3+1] = (uchar)m_pucGammaLUT[(uchar)CLIP((((double)((uchar)imInput->imageData[nY*nStep+nX*3+1])-fA_G)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_G))];
+				imOutput->imageData[nY*nStep+nX*3+2] = (uchar)m_pucGammaLUT[(uchar)CLIP((((double)((uchar)imInput->imageData[nY*nStep+nX*3+2])-fA_R)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_R))];
 			}
 		}
 	}
@@ -1399,13 +1399,13 @@ void dehazing::PostProcessing(IplImage* imInput, IplImage* imOutput)
 	const int nNumStep= 10;
 	const int nDisPos= 20;
 
-	float nAD0, nAD1, nAD2;
+	double nAD0, nAD1, nAD2;
 	int nS, nX, nY;
-	float fA_R, fA_G, fA_B;
+	double fA_R, fA_G, fA_B;
 
-	fA_B = (float)m_anAirlight[0];
-	fA_G = (float)m_anAirlight[1];
-	fA_R = (float)m_anAirlight[2];
+	fA_B = (double)m_anAirlight[0];
+	fA_G = (double)m_anAirlight[1];
+	fA_R = (double)m_anAirlight[2];
 
 #pragma omp parallel for private(nAD0, nAD1, nAD2, nS)
 	for(nY=0; nY<m_nHei; nY++)
@@ -1413,17 +1413,17 @@ void dehazing::PostProcessing(IplImage* imInput, IplImage* imOutput)
 		for(nX=0; nX<m_nWid; nX++)
 		{			
 			// (1)  I' = (I - Airlight)/Transmission + Airlight 의 식을 통해 안개 제거 영상을 얻음 (이 때 감마 보정, gamma correction LUT를 이용한 보정 통합
-			imOutput->imageData[nY*nStep+nX*3]	 = (uchar)m_pucGammaLUT[(uchar)CLIP((((float)((uchar)imInput->imageData[nY*nStep+nX*3+0])-fA_B)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_B))];
-			imOutput->imageData[nY*nStep+nX*3+1] = (uchar)m_pucGammaLUT[(uchar)CLIP((((float)((uchar)imInput->imageData[nY*nStep+nX*3+1])-fA_G)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_G))];
-			imOutput->imageData[nY*nStep+nX*3+2] = (uchar)m_pucGammaLUT[(uchar)CLIP((((float)((uchar)imInput->imageData[nY*nStep+nX*3+2])-fA_R)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_R))];
+			imOutput->imageData[nY*nStep+nX*3]	 = (uchar)m_pucGammaLUT[(uchar)CLIP((((double)((uchar)imInput->imageData[nY*nStep+nX*3+0])-fA_B)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_B))];
+			imOutput->imageData[nY*nStep+nX*3+1] = (uchar)m_pucGammaLUT[(uchar)CLIP((((double)((uchar)imInput->imageData[nY*nStep+nX*3+1])-fA_G)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_G))];
+			imOutput->imageData[nY*nStep+nX*3+2] = (uchar)m_pucGammaLUT[(uchar)CLIP((((double)((uchar)imInput->imageData[nY*nStep+nX*3+2])-fA_R)/CLIP_Z(m_pfTransmissionR[nY*m_nWid+nX]) + fA_R))];
 
 			// Transmission 값이 0.4이하의 안개가 짙은 영역에서만 후처리 보정 수행(안개 짙은 영역에서 보정이 필요하기 때문)
 			if( nX > nDisPos+nNumStep && m_pfTransmissionR[nY*m_nWid+nX-nDisPos] < 0.4 )
 			{
 				// (2) 안개제거 영상 획득과 동시에 nDisPos만큼 떨어진 픽셀 값을 관찰
-				nAD0 = (float)((int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos)*3])	- (int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1)*3]));
-				nAD1 = (float)((int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos)*3+1])	- (int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1)*3+1]));
-				nAD2 = (float)((int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos)*3+2])	- (int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1)*3+2]));
+				nAD0 = (double)((int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos)*3])	- (int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1)*3]));
+				nAD1 = (double)((int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos)*3+1])	- (int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1)*3+1]));
+				nAD2 = (double)((int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos)*3+2])	- (int)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1)*3+2]));
 
 				// (3) Transmission이 0.3이고, 인접한 픽셀간의 R,G,B 채널값의 차이중 최대 차이가 20이하 이면서
 				// nNumStep만큼 떨어진 위치의 픽셀값과 차이가 거의 없을 경우, blur를 수행
@@ -1439,9 +1439,9 @@ void dehazing::PostProcessing(IplImage* imInput, IplImage* imOutput)
 					for( nS = 1 ; nS < nNumStep+1; nS++)
 					{
 						// 블러 수행
-						imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+0]=(uchar)CLIP((float)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+0])+(float)nS*nAD0/(float)nNumStep);
-						imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+1]=(uchar)CLIP((float)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+1])+(float)nS*nAD1/(float)nNumStep);
-						imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+2]=(uchar)CLIP((float)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+2])+(float)nS*nAD2/(float)nNumStep);
+						imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+0]=(uchar)CLIP((double)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+0])+(double)nS*nAD0/(double)nNumStep);
+						imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+1]=(uchar)CLIP((double)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+1])+(double)nS*nAD1/(double)nNumStep);
+						imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+2]=(uchar)CLIP((double)((uchar)imOutput->imageData[nY*nStep+(nX-nDisPos-1+nS-nNumStep)*3+2])+(double)nS*nAD2/(double)nNumStep);
 					}
 				}
 			}
@@ -1615,7 +1615,7 @@ int* dehazing::GetYImg()
 // 출력
 //		- m_pfTransmission : 주소값 리턴
 //////////////////////////////////////////////////////////////////////////
-float* dehazing::GetTransmission()
+double* dehazing::GetTransmission()
 {
 	// (1) 전달량 주소 리턴
 	return m_pfTransmission;
@@ -1628,7 +1628,7 @@ float* dehazing::GetTransmission()
 //		- fLambdaLoss 손실 비용함수 람다값
 //		- fLambdaTemp 시간 비용함수 람다값
 //////////////////////////////////////////////////////////////////////////
-void dehazing::LambdaSetting(float fLambdaLoss, float fLambdaTemp)
+void dehazing::LambdaSetting(double fLambdaLoss, double fLambdaTemp)
 {
 	// (1) 람다값을 재정의 할 때 사용하는 함수
 	m_fLambda1 = fLambdaLoss;

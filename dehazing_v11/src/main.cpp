@@ -15,7 +15,7 @@
 #include "dehazing.h"
 #include <time.h>
 #include <conio.h>
-
+/*
 int main(int argc, char** argv)
 {	
 	CvCapture* cvSequence = cvCaptureFromFile(argv[1]);
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 		vwSequenceWriter.write(imOutput);
 	}
 
-	cout << nFrame <<" frames " << (float)(clock()-start_t)/CLOCKS_PER_SEC << "secs" <<endl;
+	cout << nFrame <<" frames " << (double)(clock()-start_t)/CLOCKS_PER_SEC << "secs" <<endl;
 
 	getch();
 
@@ -52,3 +52,4 @@ int main(int argc, char** argv)
 	
 	return 0;
 }
+*/

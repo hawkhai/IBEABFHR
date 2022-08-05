@@ -17,7 +17,7 @@
 	Author: Jin-Hwan, Kim.
  */
 #include "dehazing.h"
-
+#include <assert.h>
 
 /*
 	Function: CalcAcoeff
@@ -29,11 +29,11 @@
 	Return:
 		pfA1, pfA2, pfA3 - coefficient of "a" at each color channel
  */
-void dehazing::CalcAcoeff(float* pfSigma, float* pfCov, float* pfA1, float* pfA2, float* pfA3, int nIdx)
+void dehazing::CalcAcoeff(double* pfSigma, double* pfCov, double* pfA1, double* pfA2, double* pfA3, int nIdx)
 {
-	float fDet;
-	float fOneOverDeterminant;
-	float pfInvSig[9];
+	double fDet;
+	double fOneOverDeterminant;
+	double pfInvSig[9];
 
 	int nIdx9 = nIdx*9;
 
@@ -42,6 +42,7 @@ void dehazing::CalcAcoeff(float* pfSigma, float* pfCov, float* pfA1, float* pfA2
 		-	( pfSigma[nIdx9+1]*(pfSigma[nIdx9+3] * pfSigma[nIdx9+8] - pfSigma[nIdx9+5] * pfSigma[nIdx9+6]))
 		+	( pfSigma[nIdx9+2]*(pfSigma[nIdx9+3] * pfSigma[nIdx9+7] - pfSigma[nIdx9+4] * pfSigma[nIdx9+6])) );
 	fOneOverDeterminant = 1.0f/fDet;
+    assert(!isnan(fOneOverDeterminant));
 
 	pfInvSig [0] =  (( pfSigma[nIdx9+4]*pfSigma[nIdx9+8] ) - (pfSigma[nIdx9+5]*pfSigma[nIdx9+7]))*fOneOverDeterminant;
 	pfInvSig [1] = -(( pfSigma[nIdx9+1]*pfSigma[nIdx9+8] ) - (pfSigma[nIdx9+2]*pfSigma[nIdx9+7]))*fOneOverDeterminant;
@@ -71,9 +72,14 @@ void dehazing::CalcAcoeff(float* pfSigma, float* pfCov, float* pfA1, float* pfA2
 	Return:
 		fOutArray - output array (integrated array)
  */
-void dehazing::BoxFilter(float* pfInArray, int nR, int nWid, int nHei, float*& fOutArray)
+void dehazing::BoxFilter(double* pfInArray, int nR, int nWid, int nHei, double*& fOutArray)
 {
-	float* pfArrayCum = new float[nWid*nHei];
+    checkdouble(pfInArray, nWid * nHei);
+   // for (int i = 0; i < nWid * nHei; i++) {
+  //      assert(!isnan(pfInArray[i]));
+  //  }
+
+	double* pfArrayCum = newdouble(nWid*nHei);
 
 	//cumulative sum over Y axis
 	for ( int nX = 0; nX < nWid; nX++ )
@@ -86,12 +92,18 @@ void dehazing::BoxFilter(float* pfInArray, int nR, int nWid, int nHei, float*& f
 	for ( int nIdx = 0; nIdx < nWid*(nR+1); nIdx++)
 		fOutArray[nIdx] = pfArrayCum[nIdx+nR*nWid];
 
+    checkdouble(fOutArray, nWid * nHei);
+
 	for ( int nIdx = (nR+1)*nWid; nIdx < (nHei-nR)*nWid; nIdx++ )
 		fOutArray[nIdx] = pfArrayCum[nIdx+nR*nWid] - pfArrayCum[nIdx-nR*nWid-nWid];
+
+    checkdouble(fOutArray, nWid * nHei);
 
 	for ( int nY = nHei-nR; nY < nHei; nY++ )
 		for ( int nX = 0; nX < nWid; nX++ )
 			fOutArray[nY*nWid+nX] = pfArrayCum[(nHei-1)*nWid+nX] - pfArrayCum[(nY-nR-1)*nWid+nX];
+
+    checkdouble(fOutArray, nWid * nHei);
 	
 	//cumulative sum over X axis
 	for ( int nIdx = 0; nIdx < nHei*nWid; nIdx += nWid )
@@ -106,13 +118,19 @@ void dehazing::BoxFilter(float* pfInArray, int nR, int nWid, int nHei, float*& f
 		for ( int nX = 0; nX < nR+1; nX++ )
 			fOutArray[nY+nX] = pfArrayCum[nY+nX+nR];
 
+    checkdouble(fOutArray, nWid * nHei);
+
 	for ( int nY = 0; nY < nHei*nWid; nY+=nWid )
 		for ( int nX = nR+1; nX < nWid-nR; nX++ )
 			fOutArray[nY+nX] = pfArrayCum[nY+nX+nR] - pfArrayCum[nY+nX-nR-1];
 
+    checkdouble(fOutArray, nWid * nHei);
+
 	for ( int nY = 0; nY < nHei*nWid; nY+=nWid )
 		for ( int nX = nWid-nR; nX < nWid; nX++ )
 			fOutArray[nY+nX] = pfArrayCum[nY+nWid-1] - pfArrayCum[nY+nX-nR-1];
+
+    checkdouble(fOutArray, nWid * nHei);
 
 	delete []pfArrayCum;
 }
@@ -132,11 +150,11 @@ void dehazing::BoxFilter(float* pfInArray, int nR, int nWid, int nHei, float*& f
 		fOutArray1 - output array D2(integrated array)
 		fOutArray1 - output array D3(integrated array)
  */
-void dehazing::BoxFilter(float* pfInArray1, float* pfInArray2, float* pfInArray3, int nR, int nWid, int nHei, float*& pfOutArray1, float*& pfOutArray2, float*& pfOutArray3)
+void dehazing::BoxFilter(double* pfInArray1, double* pfInArray2, double* pfInArray3, int nR, int nWid, int nHei, double*& pfOutArray1, double*& pfOutArray2, double*& pfOutArray3)
 {
-	float* pfArrayCum1 = new float[nWid*nHei];
-	float* pfArrayCum2 = new float[nWid*nHei];
-	float* pfArrayCum3 = new float[nWid*nHei];
+	double* pfArrayCum1 = newdouble(nWid*nHei);
+	double* pfArrayCum2 = newdouble(nWid*nHei);
+	double* pfArrayCum3 = newdouble(nWid*nHei);
 
 	//cumulative sum over Y axis
 	for ( int nX = 0; nX < nWid; nX++ )
@@ -246,29 +264,29 @@ void dehazing::BoxFilter(float* pfInArray1, float* pfInArray2, float* pfInArray3
 	Return:
 		m_pfTransmissionR - filtered transmission
  */
-void dehazing::GuidedFilterY(int nW, int nH, float fEps)
+void dehazing::GuidedFilterY(int nW, int nH, double fEps)
 {
-	float* pfImageY		= new float[nW*nH];
-	float* pfInitN		= new float[nW*nH];
-	float* pfInitMeanIp = new float[nW*nH];
-	float* pfMeanP		= new float[nW*nH];
-	float* pfA			= new float[nW*nH];
-	float* pfB			= new float[nW*nH];
-	float* pfOutA		= new float[nW*nH];
-	float* pfOutB		= new float[nW*nH];
-	float* pfN			= new float[nW*nH];
-	float* pfMeanI		= new float[nW*nH];
-	float* pfMeanIp		= new float[nW*nH];
-	float* pfInitvarI	= new float[nW*nH];
-	float* pfvarI		= new float[nW*nH];
-	float* pfCovIp		= new float[nW*nH];
+	double* pfImageY		= newdouble(nW*nH);
+	double* pfInitN		= newdouble(nW*nH);
+	double* pfInitMeanIp = newdouble(nW*nH);
+	double* pfMeanP		= newdouble(nW*nH);
+	double* pfA			= newdouble(nW*nH);
+	double* pfB			= newdouble(nW*nH);
+	double* pfOutA		= newdouble(nW*nH);
+	double* pfOutB		= newdouble(nW*nH);
+	double* pfN			= newdouble(nW*nH);
+	double* pfMeanI		= newdouble(nW*nH);
+	double* pfMeanIp		= newdouble(nW*nH);
+	double* pfInitvarI	= newdouble(nW*nH);
+	double* pfvarI		= newdouble(nW*nH);
+	double* pfCovIp		= newdouble(nW*nH);
 
 	int nIdx;
 
-	// Converting to floating point array
+	// Converting to doubleing point array
 	for(nIdx = 0 ; nIdx < nW*nH ; nIdx++ )
 	{
-		pfImageY[nIdx] = (float)m_pnYImg[nIdx];
+		pfImageY[nIdx] = (double)m_pnYImg[nIdx];
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -318,7 +336,9 @@ void dehazing::GuidedFilterY(int nW, int nH, float fEps)
 
 	for ( int nIdx = 0; nIdx < nW*nH; nIdx++ )
 	{
+        assert(pfN[nIdx] != 0);
 		m_pfTransmissionR[nIdx] = ( pfOutA[nIdx]*pfImageY[nIdx] +  pfOutB[nIdx] ) / pfN[nIdx];
+        assert(!isnan(m_pfTransmissionR[nIdx]));
 	}
 
 	delete []pfInitN;
@@ -339,6 +359,21 @@ void dehazing::GuidedFilterY(int nW, int nH, float fEps)
 	delete []pfImageY;
 }
 
+double* newdouble(int size) {
+    double* retv = new double[size];
+    memset(retv, 0, size * sizeof(double));
+    return retv;
+}
+int* newint(int size) {
+    int* retv = new int[size];
+    memset(retv, 0, size * sizeof(int));
+    return retv;
+}
+void checkdouble(double* arr, int size) {
+    for (int i = 0; i < size; i++) {
+        assert(!isnan(arr[i]));
+    }
+}
 
 /*
 	Function: GuidedFilter
@@ -355,71 +390,71 @@ void dehazing::GuidedFilterY(int nW, int nH, float fEps)
 		m_pfTransmissionR - filtered transmission
  */
 
-void dehazing::GuidedFilter(int nW, int nH, float fEps)
+void dehazing::GuidedFilter(int nW, int nH, double fEps)
 {
-	float* pfImageR = new float[nW*nH];
-	float* pfImageG = new float[nW*nH];
-	float* pfImageB = new float[nW*nH];
+	double* pfImageR = newdouble(nW*nH);
+	double* pfImageG = newdouble(nW*nH);
+	double* pfImageB = newdouble(nW*nH);
 
-	float* pfInitN = new float[nW*nH];
-	float* pfInitMeanIpR = new float[nW*nH];
-	float* pfInitMeanIpG = new float[nW*nH];
-	float* pfInitMeanIpB = new float[nW*nH];
-	float* pfMeanP = new float[nW*nH];
+	double* pfInitN = newdouble(nW*nH);
+	double* pfInitMeanIpR = newdouble(nW*nH);
+	double* pfInitMeanIpG = newdouble(nW*nH);
+	double* pfInitMeanIpB = newdouble(nW*nH);
+	double* pfMeanP = newdouble(nW*nH);
 
-	float* pfN = new float[nW*nH];
-	float* pfMeanIr = new float[nW*nH];
-	float* pfMeanIg = new float[nW*nH];
-	float* pfMeanIb = new float[nW*nH];
-	float* pfMeanIpR = new float[nW*nH];
-	float* pfMeanIpG = new float[nW*nH];
-	float* pfMeanIpB = new float[nW*nH];
-	float* pfCovIpR = new float[nW*nH];
-	float* pfCovIpG = new float[nW*nH];
-	float* pfCovIpB = new float[nW*nH];
+	double* pfN = newdouble(nW*nH);
+	double* pfMeanIr = newdouble(nW*nH);
+	double* pfMeanIg = newdouble(nW*nH);
+	double* pfMeanIb = newdouble(nW*nH);
+	double* pfMeanIpR = newdouble(nW*nH);
+	double* pfMeanIpG = newdouble(nW*nH);
+	double* pfMeanIpB = newdouble(nW*nH);
+	double* pfCovIpR = newdouble(nW*nH);
+	double* pfCovIpG = newdouble(nW*nH);
+	double* pfCovIpB = newdouble(nW*nH);
 
-	float* pfCovEntire = new float[nW*nH*3];
+	double* pfCovEntire = newdouble(nW*nH*3);
 
-	float* pfInitVarIrr = new float[nW*nH];
-	float* pfInitVarIrg = new float[nW*nH];
-	float* pfInitVarIrb = new float[nW*nH];
-	float* pfInitVarIgg = new float[nW*nH];
-	float* pfInitVarIgb = new float[nW*nH];
-	float* pfInitVarIbb = new float[nW*nH];
+	double* pfInitVarIrr = newdouble(nW*nH);
+	double* pfInitVarIrg = newdouble(nW*nH);
+	double* pfInitVarIrb = newdouble(nW*nH);
+	double* pfInitVarIgg = newdouble(nW*nH);
+	double* pfInitVarIgb = newdouble(nW*nH);
+	double* pfInitVarIbb = newdouble(nW*nH);
 
-	float* pfVarIrr = new float[nW*nH];
-	float* pfVarIrg = new float[nW*nH];
-	float* pfVarIrb = new float[nW*nH];
-	float* pfVarIgg = new float[nW*nH];
-	float* pfVarIgb = new float[nW*nH];
-	float* pfVarIbb = new float[nW*nH];
+	double* pfVarIrr = newdouble(nW*nH);
+	double* pfVarIrg = newdouble(nW*nH);
+	double* pfVarIrb = newdouble(nW*nH);
+	double* pfVarIgg = newdouble(nW*nH);
+	double* pfVarIgb = newdouble(nW*nH);
+	double* pfVarIbb = newdouble(nW*nH);
 
-	float* pfA1 = new float[nW*nH];
-	float* pfA2 = new float[nW*nH];
-	float* pfA3 = new float[nW*nH];
-	float* pfOutA1 = new float[nW*nH];
-	float* pfOutA2 = new float[nW*nH];
-	float* pfOutA3 = new float[nW*nH];
+	double* pfA1 = newdouble(nW*nH);
+	double* pfA2 = newdouble(nW*nH);
+	double* pfA3 = newdouble(nW*nH);
+	double* pfOutA1 = newdouble(nW*nH);
+	double* pfOutA2 = newdouble(nW*nH);
+	double* pfOutA3 = newdouble(nW*nH);
 
-	float* pfSigmaEntire = new float[nW*nH*9];
+	double* pfSigmaEntire = newdouble(nW*nH*9);
 
-	float* pfB = new float[nW*nH];
-	float* pfOutB = new float[nW*nH];
+	double* pfB = newdouble(nW*nH);
+	double* pfOutB = newdouble(nW*nH);
 
 	int nIdx;
-	// Converting to float point
+	// Converting to double point
 	for(nIdx = 0 ; nIdx < nW*nH ; nIdx++ )
 	{
-		pfImageR[nIdx] = (float)m_pnRImg[nIdx];
-		pfImageG[nIdx] = (float)m_pnGImg[nIdx];
-		pfImageB[nIdx] = (float)m_pnBImg[nIdx];
+		pfImageR[nIdx] = (double)m_pnRImg[nIdx];
+		pfImageG[nIdx] = (double)m_pnGImg[nIdx];
+		pfImageB[nIdx] = (double)m_pnBImg[nIdx];
 	}
 	//////////////////////////////////////////////////////////////////////////
 
 	// Make an integral image
 	for (nIdx = 0; nIdx < nW*nH; nIdx++ )
 	{
-		pfInitN[nIdx] = (float)1;
+		pfInitN[nIdx] = (double)1;
 
 		pfInitMeanIpR[nIdx] = pfImageR[nIdx]*m_pfTransmission[nIdx];
 		pfInitMeanIpG[nIdx] = pfImageG[nIdx]*m_pfTransmission[nIdx];
@@ -496,6 +531,15 @@ void dehazing::GuidedFilter(int nW, int nH, float fEps)
 	{
 		CalcAcoeff(pfSigmaEntire, pfCovEntire, pfA1, pfA2, pfA3, nIdx);
 	}
+    checkdouble(pfA1, nW * nH);
+
+    checkdouble(pfMeanP, nW * nH);
+    checkdouble(pfA1, nW * nH);
+    checkdouble(pfA2, nW * nH);
+    checkdouble(pfA3, nW * nH);
+    checkdouble(pfMeanIr, nW * nH);
+    checkdouble(pfMeanIg, nW * nH);
+    checkdouble(pfMeanIb, nW * nH);
 
 	// Coefficient b
 	for (nIdx = 0; nIdx < nW*nH; nIdx++ )
@@ -506,12 +550,28 @@ void dehazing::GuidedFilter(int nW, int nH, float fEps)
 	// Transmission refinement at each pixel
 	BoxFilter(pfA1,pfA2,pfA3,m_nGBlockSize,nW,nH,pfOutA1,pfOutA2,pfOutA3);
 
+    for (int i = 0; i < nW * nH; i++) {
+        assert(!isnan(pfB[i]));
+    }
 	BoxFilter(pfB,m_nGBlockSize,nW,nH,pfOutB);
+    for (int i = 0; i < nW * nH; i++) {
+        assert(!isnan(pfOutB[i]));
+    }
 
 	for (nIdx = 0; nIdx < nW*nH; nIdx++ )
 	{
-		m_pfTransmissionR[nIdx] = ( pfOutA1[nIdx]*pfImageR[nIdx] + pfOutA2[nIdx]*pfImageG[nIdx] + pfOutA3[nIdx]*pfImageB[nIdx] + pfOutB[nIdx] ) / pfN[nIdx];
-	}
+        assert(pfN[nIdx] != 0);
+
+        double a1 = pfOutA1[nIdx] * pfImageR[nIdx];
+        double a2 = pfOutA2[nIdx] * pfImageG[nIdx];
+        double a3 = pfOutA3[nIdx] * pfImageB[nIdx];
+        double a4 = pfOutB[nIdx];
+
+        double xx = a1 + a2 + a3 + a4;
+        double yy = pfN[nIdx];
+        m_pfTransmissionR[nIdx] = xx / yy;
+        assert(!isnan(m_pfTransmissionR[nIdx]));
+    }
 
 	delete []pfInitN;
 	delete []pfInitMeanIpR;
@@ -584,11 +644,11 @@ void dehazing::FastGuidedFilterS()
 
 	int nYb, nXb, nYa, nXa;
 	int nIdxA, nIdxB, nI;
-	float fDenom, fNormV1, fMeanI;		
-	float fAk, fBk;						
+	double fDenom, fNormV1, fMeanI;		
+	double fAk, fBk;						
 
 	// SIMD is applied
-	__m128 sseMean, sseY, ssePk_p, sseDenom, sseInteg, sseNormPk,	
+	__m128d sseMean, sseY, ssePk_p, sseDenom, sseInteg, sseNormPk,	
 		sseAk, sseBk, sseP, sseNormV1, sseGauss, sseBkV1, sseQ;
 
 	// Initialization
@@ -596,7 +656,7 @@ void dehazing::FastGuidedFilterS()
 	{
 		for ( nXb = 0; nXb < nW; nXb++ )
 		{
-			m_pfSmallY[nYb*nW+nXb]=(float)m_pnSmallYImg[nYb*nW+nXb];
+			m_pfSmallY[nYb*nW+nXb]=(double)m_pnSmallYImg[nYb*nW+nXb];
 			m_pfSmallInteg[nYb*nW+nXb]=0;
 			m_pfSmallDenom[nYb*nW+nXb]=0;
 		}
@@ -615,28 +675,28 @@ void dehazing::FastGuidedFilterS()
 			// fNormV1 --> create perpendicular vector(m_pfSmallPk_p)
 			// m_pfSmallPk_p == m_pfSmallY - fMeanI;
 
-			sseMean = _mm_setzero_ps();
-			sseY = _mm_setzero_ps();
+			sseMean = _mm_setzero_pd();
+			sseY = _mm_setzero_pd();
 
 			// Mean value
 			for ( nYb = 0 ; nYb < m_nGBlockSize; nYb++ )
 			{
 				for ( nXb = 0; nXb < m_nGBlockSize; nXb+=4 )
 				{
-					sseY = _mm_loadu_ps((m_pfSmallY+(nIdxA+nYb*nW+nXb)));
-					sseMean = _mm_add_ps( sseMean, sseY );
+					sseY = _mm_loadu_pd((m_pfSmallY+(nIdxA+nYb*nW+nXb)));
+					sseMean = _mm_add_pd( sseMean, sseY );
 				}
 			}
 
 			for ( nI = 0 ; nI < 4; nI++ )
 			{
-				fMeanI += *((float*)(&sseMean)+nI);
+				fMeanI += *((double*)(&sseMean)+nI);
 			}
 
 			fMeanI = fMeanI/(m_nGBlockSize*m_nGBlockSize);
 
-			sseMean = _mm_set1_ps(fMeanI);
-			sseY = _mm_setzero_ps();
+			sseMean = _mm_set1_pd(fMeanI);
+			sseY = _mm_setzero_pd();
 
 			ssePk_p;
 			
@@ -645,12 +705,12 @@ void dehazing::FastGuidedFilterS()
 			{
 				for ( nXb = 0; nXb < m_nGBlockSize; nXb+=4 )
 				{
-					sseY = _mm_loadu_ps(m_pfSmallY+(nIdxA+nYb*nW+nXb));
-					ssePk_p = _mm_sub_ps( sseY, sseMean );
+					sseY = _mm_loadu_pd(m_pfSmallY+(nIdxA+nYb*nW+nXb));
+					ssePk_p = _mm_sub_pd( sseY, sseMean );
 
 					for ( nI = 0 ; nI < 4; nI++)
 					{
-						m_pfSmallPk_p[nYb*m_nGBlockSize+nXb+nI] = *((float*)(&ssePk_p)+nI);
+						m_pfSmallPk_p[nYb*m_nGBlockSize+nXb+nI] = *((double*)(&ssePk_p)+nI);
 					}
 				}
 			}
@@ -659,28 +719,28 @@ void dehazing::FastGuidedFilterS()
 			// m_pfSmallPk_p^2
 			fDenom=0.0f;
 
-			sseDenom =_mm_setzero_ps();
+			sseDenom =_mm_setzero_pd();
 
 			for ( nIdxB = 0 ; nIdxB < m_nGBlockSize*m_nGBlockSize; nIdxB+=4 )
 			{
-				ssePk_p = _mm_loadu_ps(m_pfSmallPk_p+nIdxB);
-				sseDenom = _mm_add_ps( sseDenom, _mm_mul_ps( ssePk_p, ssePk_p ));
+				ssePk_p = _mm_loadu_pd(m_pfSmallPk_p+nIdxB);
+				sseDenom = _mm_add_pd( sseDenom, _mm_mul_pd( ssePk_p, ssePk_p ));
 			}
 
 			for ( nI = 0 ; nI < 4; nI++ )
 			{
-				fDenom += *((float*)(&sseDenom)+nI);
+				fDenom += *((double*)(&sseDenom)+nI);
 			}
 
-			sseDenom = _mm_set1_ps(sqrt(fDenom));
+			sseDenom = _mm_set1_pd(sqrt(fDenom));
 
 			sseNormPk;
 
 			fAk = 0.0f;
 			fBk = 0.0f;
 
-			sseAk = _mm_setzero_ps();
-			sseBk = _mm_setzero_ps();
+			sseAk = _mm_setzero_pd();
+			sseBk = _mm_setzero_pd();
 			sseP;
 			
 			
@@ -692,61 +752,61 @@ void dehazing::FastGuidedFilterS()
 				// a = 0;
 				fAk = 0;
 
-				sseNormV1 = _mm_set1_ps(fNormV1);
+				sseNormV1 = _mm_set1_pd(fNormV1);
 				for ( nYb = 0 ; nYb < m_nGBlockSize; nYb++ )
 				{
 					for ( nXb = 0; nXb < m_nGBlockSize; nXb+=4 )
 					{
-						sseP = _mm_loadu_ps(m_pfSmallTrans+(nIdxA+nYb*nW+nXb));
-						sseBk = _mm_add_ps( _mm_mul_ps( sseP , sseNormV1 ), sseBk );
+						sseP = _mm_loadu_pd(m_pfSmallTrans+(nIdxA+nYb*nW+nXb));
+						sseBk = _mm_add_pd( _mm_mul_pd( sseP , sseNormV1 ), sseBk );
 					}
 				}
 
 				// b = q'norm_v1
 				for ( nI = 0 ; nI < 4; nI++ )
-					fBk += *((float*)(&sseBk)+nI);
+					fBk += *((double*)(&sseBk)+nI);
 			}
 			else
 			{
 				// m_pfSmallNormPk
 				for ( nIdxB = 0 ; nIdxB < m_nGBlockSize*m_nGBlockSize; nIdxB+=4 )
 				{
-					ssePk_p = _mm_loadu_ps(m_pfSmallPk_p+nIdxB);
-					sseNormPk = _mm_div_ps(ssePk_p, sseDenom);
+					ssePk_p = _mm_loadu_pd(m_pfSmallPk_p+nIdxB);
+					sseNormPk = _mm_div_pd(ssePk_p, sseDenom);
 
 					for ( nI = 0 ; nI < 4; nI++ )
 					{
-						m_pfSmallNormPk[nIdxB+nI] = *((float*)(&sseNormPk)+nI);
+						m_pfSmallNormPk[nIdxB+nI] = *((double*)(&sseNormPk)+nI);
 					}
 				}
 
 				// a = q'norm_p
 				// b = q'norm_v1
-				sseNormV1 = _mm_set1_ps(fNormV1);
+				sseNormV1 = _mm_set1_pd(fNormV1);
 
 				for ( nYb = 0 ; nYb < m_nGBlockSize; nYb++ )
 				{
 					for ( nXb = 0; nXb < m_nGBlockSize; nXb+=4 )
 					{
-						sseP = _mm_loadu_ps(m_pfSmallTrans+(nIdxA+nYb*nW+nXb));
-						sseNormPk = _mm_loadu_ps(m_pfSmallNormPk+(nYb*m_nGBlockSize+nXb));
+						sseP = _mm_loadu_pd(m_pfSmallTrans+(nIdxA+nYb*nW+nXb));
+						sseNormPk = _mm_loadu_pd(m_pfSmallNormPk+(nYb*m_nGBlockSize+nXb));
 
-						sseAk = _mm_add_ps( _mm_mul_ps( sseP , sseNormPk ), sseAk );
-						sseBk = _mm_add_ps( _mm_mul_ps( sseP , sseNormV1 ), sseBk );
+						sseAk = _mm_add_pd( _mm_mul_pd( sseP , sseNormPk ), sseAk );
+						sseBk = _mm_add_pd( _mm_mul_pd( sseP , sseNormV1 ), sseBk );
 					}
 				}
 
 				for ( nI = 0 ; nI < 4; nI++ )
 				{
-					fAk += *((float*)(&sseAk)+nI);
-					fBk += *((float*)(&sseBk)+nI);
+					fAk += *((double*)(&sseAk)+nI);
+					fBk += *((double*)(&sseBk)+nI);
 				}
 			}
 
 			sseGauss;
 			sseInteg;
-			sseBkV1 = _mm_set1_ps(fBk*fNormV1);
-			sseAk = _mm_set1_ps(fAk);
+			sseBkV1 = _mm_set1_pd(fBk*fNormV1);
+			sseAk = _mm_set1_pd(fAk);
 			// Gaussian weighting
 			// Weighted_denom
 
@@ -754,16 +814,16 @@ void dehazing::FastGuidedFilterS()
 			{
 				for ( nXb = 0; nXb < m_nGBlockSize; nXb+=4 )
 				{ 
-					sseNormPk = _mm_loadu_ps(m_pfSmallNormPk+(nYb*m_nGBlockSize+nXb));
-					sseGauss = _mm_loadu_ps(m_pfGuidedLUT+(nYb*m_nGBlockSize+nXb));
+					sseNormPk = _mm_loadu_pd(m_pfSmallNormPk+(nYb*m_nGBlockSize+nXb));
+					sseGauss = _mm_loadu_pd(m_pfGuidedLUT+(nYb*m_nGBlockSize+nXb));
 
-					sseInteg = _mm_mul_ps(_mm_add_ps( _mm_mul_ps(sseNormPk, sseAk), sseBkV1 ), sseGauss);
+					sseInteg = _mm_mul_pd(_mm_add_pd( _mm_mul_pd(sseNormPk, sseAk), sseBkV1 ), sseGauss);
 					// m_pfSmallInteg
 					// m_pfSmallDenom
 					for ( nI = 0 ; nI < 4; nI++ )
 					{
-						m_pfSmallInteg[nIdxA+nYb*nW+nXb+nI] += *((float*)(&sseInteg)+nI);
-						m_pfSmallDenom[nIdxA+nYb*nW+nXb+nI] += *((float*)(&sseGauss)+nI);
+						m_pfSmallInteg[nIdxA+nYb*nW+nXb+nI] += *((double*)(&sseInteg)+nI);
+						m_pfSmallDenom[nIdxA+nYb*nW+nXb+nI] += *((double*)(&sseGauss)+nI);
 					}
 				}
 			}
@@ -773,13 +833,13 @@ void dehazing::FastGuidedFilterS()
 	// m_pfSmallTransR = m_pfSmallInteg / m_pfSmallDenom
 	for( nIdxA = 0 ; nIdxA < nW*nH; nIdxA+=4 )
 	{
-		sseInteg = _mm_loadu_ps(m_pfSmallInteg+nIdxA);
-		sseDenom = _mm_loadu_ps(m_pfSmallDenom+nIdxA);
+		sseInteg = _mm_loadu_pd(m_pfSmallInteg+nIdxA);
+		sseDenom = _mm_loadu_pd(m_pfSmallDenom+nIdxA);
 
-		sseQ = _mm_div_ps(sseInteg, sseDenom);
+		sseQ = _mm_div_pd(sseInteg, sseDenom);
 
 		for( nI = 0; nI < 4; nI++)
-			m_pfSmallTransR[nIdxA+nI] = *((float*)(&sseQ)+nI);
+			m_pfSmallTransR[nIdxA+nI] = *((double*)(&sseQ)+nI);
 	}
 }
 
@@ -807,25 +867,25 @@ void dehazing::FastGuidedFilter()
 	int nHeiL = m_nHei;							
 	int nWidL = m_nWid;							
 
-	float* pfYL = m_pfY;						
-	float* pfIntegL = m_pfInteg;
-	float* pfDenomL = m_pfDenom;
+	double* pfYL = m_pfY;						
+	double* pfIntegL = m_pfInteg;
+	double* pfDenomL = m_pfDenom;
 	int* pnYImgL = m_pnYImg;
-	float* pfPk_pL = m_pfPk_p;
-	float* pfNormPkL = m_pfNormPk;
-	float* pfGuidedLUTL = m_pfGuidedLUT;
-	float* pfTransmissionL = m_pfTransmission;
+	double* pfPk_pL = m_pfPk_p;
+	double* pfNormPkL = m_pfNormPk;
+	double* pfGuidedLUTL = m_pfGuidedLUT;
+	double* pfTransmissionL = m_pfTransmission;
 
 	int nWstep = nEPBlockSizeL/nStep;			
 	int nHstep = nEPBlockSizeL/nStep;			
 
-	float fDenom, fNormV1, fMeanI;				
-	float fAk = 0.0f;							// fAk : a in "a*I+b", fBk : b in "a*I+b"
-	float fBk = 0.0f;
+	double fDenom, fNormV1, fMeanI;				
+	double fAk = 0.0f;							// fAk : a in "a*I+b", fBk : b in "a*I+b"
+	double fBk = 0.0f;
 	int nIdxA, nYa, nXa, nYb, nXb, nI, nIdxB;	//  indexing
 	
 	// SIMD is applied
-	__m128 sseMean, sseY, ssePk_p, sseDenom, sseInteg, sseNormPk, 
+	__m128d sseMean, sseY, ssePk_p, sseDenom, sseInteg, sseNormPk, 
 		sseAk, sseBk, sseP, sseNormV1, sseGauss, sseBkV1,	sseQ;
 	
 	// Initialization
@@ -833,7 +893,7 @@ void dehazing::FastGuidedFilter()
 	{
 		for ( nXb = 0; nXb < nWidL; nXb++ )
 		{
-			pfYL[nYb*nWidL+nXb]=(float)pnYImgL[nYb*nWidL+nXb];
+			pfYL[nYb*nWidL+nXb]=(double)pnYImgL[nYb*nWidL+nXb];
 			pfIntegL[nYb*nWidL+nXb]=0;
 			pfDenomL[nYb*nWidL+nXb]=0;
 		}
@@ -850,40 +910,40 @@ void dehazing::FastGuidedFilter()
 
 			// Create p vector(m_pfSmallPk_p) which is perpendicular to fNormV1
 			// p vector == m_pfSmallY - fMeanI
-			sseMean = _mm_setzero_ps();
-			sseY = _mm_setzero_ps();
+			sseMean = _mm_setzero_pd();
+			sseY = _mm_setzero_pd();
 
 			// Mean value
 			for ( nYb = 0 ; nYb < nEPBlockSizeL; nYb++ )
 			{
 				for ( nXb = 0; nXb < nEPBlockSizeL; nXb+=4 )
 				{
-					sseY = _mm_loadu_ps((pfYL+(nIdxA+nYb*nWidL+nXb)));
-					sseMean = _mm_add_ps( sseMean, sseY );
+					sseY = _mm_loadu_pd((pfYL+(nIdxA+nYb*nWidL+nXb)));
+					sseMean = _mm_add_pd( sseMean, sseY );
 				}
 			}
 
 			for ( nI = 0 ; nI < 4; nI++ )
 			{
-				fMeanI += *((float*)(&sseMean)+nI);
+				fMeanI += *((double*)(&sseMean)+nI);
 			}
 
 			fMeanI = fMeanI/(nEPBlockSizeL*nEPBlockSizeL);
 			
-			sseMean = _mm_set1_ps(fMeanI);
-			sseY = _mm_setzero_ps();
+			sseMean = _mm_set1_pd(fMeanI);
+			sseY = _mm_setzero_pd();
 
 			// m_pfSmallY - fMeanI
 			for ( nYb = 0 ; nYb < nEPBlockSizeL; nYb++ )
 			{
 				for ( nXb = 0; nXb < nEPBlockSizeL; nXb+=4 )
 				{
-					sseY = _mm_loadu_ps(pfYL+(nIdxA+nYb*nWidL+nXb));
-					ssePk_p = _mm_sub_ps( sseY, sseMean );
+					sseY = _mm_loadu_pd(pfYL+(nIdxA+nYb*nWidL+nXb));
+					ssePk_p = _mm_sub_pd( sseY, sseMean );
 
 					for ( nI = 0 ; nI < 4; nI++)
 					{
-						pfPk_pL[nYb*nEPBlockSizeL+nXb+nI] = *((float*)(&ssePk_p)+nI);
+						pfPk_pL[nYb*nEPBlockSizeL+nXb+nI] = *((double*)(&ssePk_p)+nI);
 					}
 				}
 			}
@@ -891,23 +951,23 @@ void dehazing::FastGuidedFilter()
 			// m_pfSmallPk_p^2
 			fDenom=0.0f;
 
-			sseDenom =_mm_setzero_ps();
+			sseDenom =_mm_setzero_pd();
 
 			for ( nIdxB = 0 ; nIdxB < nEPBlockSizeL*nEPBlockSizeL; nIdxB+=4 )
 			{
-				ssePk_p = _mm_loadu_ps(pfPk_pL+nIdxB);
-				sseDenom = _mm_add_ps( sseDenom, _mm_mul_ps( ssePk_p, ssePk_p ));
+				ssePk_p = _mm_loadu_pd(pfPk_pL+nIdxB);
+				sseDenom = _mm_add_pd( sseDenom, _mm_mul_pd( ssePk_p, ssePk_p ));
 			}
 
 			for ( nI = 0 ; nI < 4; nI++ )
 			{
-				fDenom += *((float*)(&sseDenom)+nI);
+				fDenom += *((double*)(&sseDenom)+nI);
 			}
 
-			sseDenom = _mm_set1_ps(sqrt(fDenom));
+			sseDenom = _mm_set1_pd(sqrt(fDenom));
 			
-			sseAk = _mm_setzero_ps();
-			sseBk = _mm_setzero_ps();
+			sseAk = _mm_setzero_pd();
+			sseBk = _mm_setzero_pd();
 			// a = q'norm_p
 			// b = q'norm_v1
 			// Exception handling (denominator == 0)
@@ -917,73 +977,73 @@ void dehazing::FastGuidedFilter()
 
 			if(fDenom == 0)
 			{
-				sseNormV1 = _mm_set1_ps(fNormV1);
+				sseNormV1 = _mm_set1_pd(fNormV1);
 				for ( nYb = 0 ; nYb < nEPBlockSizeL; nYb++ )
 				{
 					for ( nXb = 0; nXb < nEPBlockSizeL; nXb+=4 )
 					{
-						sseP = _mm_loadu_ps(pfTransmissionL+(nIdxA+nYb*nWidL+nXb));
-						sseBk = _mm_add_ps( _mm_mul_ps( sseP , sseNormV1 ), sseBk );
+						sseP = _mm_loadu_pd(pfTransmissionL+(nIdxA+nYb*nWidL+nXb));
+						sseBk = _mm_add_pd( _mm_mul_pd( sseP , sseNormV1 ), sseBk );
 					}
 				}
 				// b = q'norm_v1
 				for ( nI = 0 ; nI < 4; nI++ )
-					fBk += *((float*)(&sseBk)+nI);
+					fBk += *((double*)(&sseBk)+nI);
 			}
 			else
 			{
 				// m_pfSmallNormPk
 				for ( nIdxB = 0 ; nIdxB < nEPBlockSizeL*nEPBlockSizeL; nIdxB+=4 )
 				{
-					ssePk_p = _mm_loadu_ps(pfPk_pL+nIdxB);
-					sseNormPk = _mm_div_ps(ssePk_p, sseDenom);
+					ssePk_p = _mm_loadu_pd(pfPk_pL+nIdxB);
+					sseNormPk = _mm_div_pd(ssePk_p, sseDenom);
 
 					for ( int nI = 0 ; nI < 4; nI++ )
 					{
-						pfNormPkL[nIdxB+nI] = *((float*)(&sseNormPk)+nI);
+						pfNormPkL[nIdxB+nI] = *((double*)(&sseNormPk)+nI);
 					}
 				}
 
-				sseNormV1 = _mm_set1_ps(fNormV1);
+				sseNormV1 = _mm_set1_pd(fNormV1);
 				// a = q'norm_p
 				// b = q'norm_v1
 				for ( nYb = 0 ; nYb < nEPBlockSizeL; nYb++ )
 				{
 					for ( nXb = 0; nXb < nEPBlockSizeL; nXb+=4 )
 					{
-						sseP = _mm_loadu_ps(pfTransmissionL+(nIdxA+nYb*nWidL+nXb));
-						sseNormPk = _mm_loadu_ps(pfNormPkL+(nYb*nEPBlockSizeL+nXb));
+						sseP = _mm_loadu_pd(pfTransmissionL+(nIdxA+nYb*nWidL+nXb));
+						sseNormPk = _mm_loadu_pd(pfNormPkL+(nYb*nEPBlockSizeL+nXb));
 
-						sseAk = _mm_add_ps( _mm_mul_ps( sseP , sseNormPk ), sseAk );
-						sseBk = _mm_add_ps( _mm_mul_ps( sseP , sseNormV1 ), sseBk );
+						sseAk = _mm_add_pd( _mm_mul_pd( sseP , sseNormPk ), sseAk );
+						sseBk = _mm_add_pd( _mm_mul_pd( sseP , sseNormV1 ), sseBk );
 					}
 				}
 
 				for ( nI = 0 ; nI < 4; nI++ )
 				{
-					fAk += *((float*)(&sseAk)+nI);
-					fBk += *((float*)(&sseBk)+nI);
+					fAk += *((double*)(&sseAk)+nI);
+					fBk += *((double*)(&sseBk)+nI);
 				}
 			}
 					
-			sseBkV1 = _mm_set1_ps(fBk*fNormV1);
-			sseAk = _mm_set1_ps(fAk);
+			sseBkV1 = _mm_set1_pd(fBk*fNormV1);
+			sseAk = _mm_set1_pd(fAk);
 			// Gaussian weighting
 			// Weighted_denom
 			for ( nYb = 0 ; nYb < nEPBlockSizeL; nYb++ )
 			{
 				for ( nXb = 0; nXb < nEPBlockSizeL; nXb+=4 )
 				{ 
-					sseNormPk = _mm_loadu_ps(pfNormPkL+(nYb*nEPBlockSizeL+nXb));
-					sseGauss = _mm_loadu_ps(pfGuidedLUTL+(nYb*nEPBlockSizeL+nXb));
+					sseNormPk = _mm_loadu_pd(pfNormPkL+(nYb*nEPBlockSizeL+nXb));
+					sseGauss = _mm_loadu_pd(pfGuidedLUTL+(nYb*nEPBlockSizeL+nXb));
 
-					sseInteg = _mm_mul_ps(_mm_add_ps( _mm_mul_ps(sseNormPk, sseAk), sseBkV1 ), sseGauss);
+					sseInteg = _mm_mul_pd(_mm_add_pd( _mm_mul_pd(sseNormPk, sseAk), sseBkV1 ), sseGauss);
 					// m_pfSmallInteg
 					// m_pfSmallDenom
 					for ( nI = 0 ; nI < 4; nI++ )
 					{
-						pfIntegL[nIdxA+nYb*nWidL+nXb+nI] += *((float*)(&sseInteg)+nI);
-						pfDenomL[nIdxA+nYb*nWidL+nXb+nI] += *((float*)(&sseGauss)+nI);
+						pfIntegL[nIdxA+nYb*nWidL+nXb+nI] += *((double*)(&sseInteg)+nI);
+						pfDenomL[nIdxA+nYb*nWidL+nXb+nI] += *((double*)(&sseGauss)+nI);
 					}
 				}
 			}
@@ -993,13 +1053,13 @@ void dehazing::FastGuidedFilter()
 	// m_pfSmallTransR = m_pfSmallInteg / m_pfSmallDenom
 	for( int nIdx = 0 ; nIdx < nWidL*nHeiL; nIdx+=4 )
 	{
-		sseInteg = _mm_loadu_ps(pfIntegL+nIdx);
-		sseDenom = _mm_loadu_ps(pfDenomL+nIdx);
+		sseInteg = _mm_loadu_pd(pfIntegL+nIdx);
+		sseDenom = _mm_loadu_pd(pfDenomL+nIdx);
 
-		sseQ = _mm_div_ps(sseInteg, sseDenom);
+		sseQ = _mm_div_pd(sseInteg, sseDenom);
 
 		for( int nI = 0; nI < 4; nI++)
-			m_pfTransmissionR[nIdx+nI] = *((float*)(&sseQ)+nI);
+			m_pfTransmissionR[nIdx+nI] = *((double*)(&sseQ)+nI);
 	}
 }
 
@@ -1013,55 +1073,55 @@ void dehazing::FastGuidedFilter()
 	Return:
 		m_pfSmallTransR - refined transmission.		
  */
-void dehazing::GuidedFilterShiftableWindow(float fEps)
+void dehazing::GuidedFilterShiftableWindow(double fEps)
 {
 	int nY, nX;
 	int nH, nW;
 	int nYmin, nXmin, nYmax, nXmax;
 	int nYminOpt, nXminOpt, nYmaxOpt, nXmaxOpt;
 
-	float fMeanI, fMeanR, fMeanG, fMeanB;
-	float fActualBlock;
-	float fMeant;
-	float ftrans;
-	float fa1, fa2, fa3, fb;
-	float fCovRp, fCovGp, fCovBp;
-	float afSigma[9], afInv[9];
-	float fVRR, fVRG, fVRB, fVGB, fVBB, fVGG;
-	float fMRt, fMGt, fMBt;
-	float fR, fG, fB;
-	float fDet;
+	double fMeanI, fMeanR, fMeanG, fMeanB;
+	double fActualBlock;
+	double fMeant;
+	double ftrans;
+	double fa1, fa2, fa3, fb;
+	double fCovRp, fCovGp, fCovBp;
+	double afSigma[9], afInv[9];
+	double fVRR, fVRG, fVRB, fVGB, fVBB, fVGG;
+	double fMRt, fMGt, fMBt;
+	double fR, fG, fB;
+	double fDet;
 	int x1, x2, y1, y2;
 	int nItersX, nItersY;
-	float fVariance, fOptVariance;
+	double fVariance, fOptVariance;
 
-	float *pfImageY		= new float[m_nWid*m_nHei];
-	float *pfSqImageY	= new float[m_nWid*m_nHei];
-	float *pfSumTrans	= new float[m_nWid*m_nHei];
+	double *pfImageY		= newdouble(m_nWid*m_nHei);
+	double *pfSqImageY	= newdouble(m_nWid*m_nHei);
+	double *pfSumTrans	= newdouble(m_nWid*m_nHei);
 	
-	float *pfIntImageY	= new float[m_nWid*m_nHei];
-	float *pfSqIntImageY= new float[m_nWid*m_nHei];
-	float *pfintN		= new float[m_nWid*m_nHei];
-	float *pfones		= new float[m_nWid*m_nHei];
+	double *pfIntImageY	= newdouble(m_nWid*m_nHei);
+	double *pfSqIntImageY= newdouble(m_nWid*m_nHei);
+	double *pfintN		= newdouble(m_nWid*m_nHei);
+	double *pfones		= newdouble(m_nWid*m_nHei);
 
-	float *pfWeight		= new float[m_nWid*m_nHei];
-	float *pfWeiSum		= new float[m_nWid*m_nHei];
+	double *pfWeight		= newdouble(m_nWid*m_nHei);
+	double *pfWeiSum		= newdouble(m_nWid*m_nHei);
 		
-	float *pfVarImage	= new float[m_nWid*m_nHei];
+	double *pfVarImage	= newdouble(m_nWid*m_nHei);
 
-	int	*pnN			= new int [m_nWid*m_nHei];
-	int *pnVarN			= new int [m_nWid*m_nHei];
+	int	*pnN			= newint (m_nWid*m_nHei);
+	int *pnVarN			= newint (m_nWid*m_nHei);
 		
 	int nMax = 0;
-	float fMaxvar=0;
-	float grey;
+	double fMaxvar=0;
+	double grey;
 	bool bIterationFlag;
 
-	float fMB, fMG, fMR, fMBS, fMGS, fMRS;
+	double fMB, fMG, fMR, fMBS, fMGS, fMRS;
 
 	int	nSizes = 31;
 	int nNewX, nNewY, nOptNewX, nOptNewY;
-	float inverseweight;
+	double inverseweight;
 
 	bIterationFlag = TRUE;
 
@@ -1074,8 +1134,8 @@ void dehazing::GuidedFilterShiftableWindow(float fEps)
 		pnVarN[nX] = 0;
 		pfWeiSum[nX] = 0;
 
-		pfImageY[nX] = (float)m_pnYImg[nX];
-		pfSqImageY[nX] = (float)m_pnYImg[nX]*(float)m_pnYImg[nX];
+		pfImageY[nX] = (double)m_pnYImg[nX];
+		pfSqImageY[nX] = (double)m_pnYImg[nX]*(double)m_pnYImg[nX];
 	}
 
 	BoxFilter(pfImageY, 15, m_nWid, m_nHei, pfIntImageY);
@@ -1113,7 +1173,7 @@ iterative:
 					nNewX = __min(__max(nX+nItersX, 0), m_nWid-1);
 					nNewY = __min(__max(nY+nItersY, 0), m_nHei-1);
 				
-					inverseweight = 1;//exp(-((float)(nItersX*nItersX)+(float)(nItersY*nItersY))/70.0f);
+					inverseweight = 1;//exp(-((double)(nItersX*nItersX)+(double)(nItersY*nItersY))/70.0f);
 
 					if(fOptVariance > pfVarImage[nNewX+nNewY*m_nWid]*inverseweight)
 					{
@@ -1128,7 +1188,7 @@ iterative:
 				}
 			}
 
-			fActualBlock = (float)(nYmaxOpt-nYminOpt)*(nXmaxOpt-nXminOpt);
+			fActualBlock = (double)(nYmaxOpt-nYminOpt)*(nXmaxOpt-nXminOpt);
 			if(bIterationFlag)
 			{
 				pnVarN[nOptNewX+nOptNewY*m_nWid]++; 
@@ -1144,9 +1204,9 @@ iterative:
 			{
 				for(nW=nXminOpt; nW<nXmaxOpt; nW++)
 				{
-					fB = ((float)(m_pnBImg[nW+m_nWid*nH]))/255.0f;
-					fG = ((float)(m_pnGImg[nW+m_nWid*nH]))/255.0f;
-					fR = ((float)(m_pnRImg[nW+m_nWid*nH]))/255.0f;
+					fB = ((double)(m_pnBImg[nW+m_nWid*nH]))/255.0f;
+					fG = ((double)(m_pnGImg[nW+m_nWid*nH]))/255.0f;
+					fR = ((double)(m_pnRImg[nW+m_nWid*nH]))/255.0f;
 					
 					fMeanB += fB;
 					fMeanG += fG;
@@ -1233,9 +1293,9 @@ iterative:
 					for(nW=nXminOpt; nW<nXmaxOpt; nW++)
 					{
 						pfSumTrans[nH*m_nWid+nW] = pfSumTrans[nH*m_nWid+nW] + 
-							(fa1*(float)(m_pnRImg[nW+m_nWid*nH])/255.0f
-							+ fa2*(float)(m_pnGImg[nW+m_nWid*nH])/255.0f	
-							+ fa3*(float)(m_pnBImg[nW+m_nWid*nH])/255.0f + fb)*pfWeight[nOptNewY*m_nWid+nOptNewX];
+							(fa1*(double)(m_pnRImg[nW+m_nWid*nH])/255.0f
+							+ fa2*(double)(m_pnGImg[nW+m_nWid*nH])/255.0f	
+							+ fa3*(double)(m_pnBImg[nW+m_nWid*nH])/255.0f + fb)*pfWeight[nOptNewY*m_nWid+nOptNewX];
 						//pnN[nH*nWid+nW]++;
 						pfWeiSum[nH*m_nWid+nW] += pfWeight[nOptNewY*m_nWid+nOptNewX];
 					}
@@ -1245,7 +1305,7 @@ iterative:
 	}
 	
 	nMax = 0;
-	float fmax=0;
+	double fmax=0;
 	for(nY=0; nY<m_nHei; nY++)
 	{
 		for(nX=0; nX<m_nWid; nX++)
@@ -1254,11 +1314,13 @@ iterative:
 			{
 				if(nMax < pnVarN[nY*m_nWid+nX])
 					nMax = pnVarN[nY*m_nWid+nX];
-				pfWeight[nX+nY*m_nWid] = (float)pnVarN[nX+nY*m_nWid]/(float)pnN[nX+nY*m_nWid];
+				pfWeight[nX+nY*m_nWid] = (double)pnVarN[nX+nY*m_nWid]/(double)pnN[nX+nY*m_nWid];
 			}
 			else
 			{
+                assert(pfWeiSum[nY * m_nWid + nX] != 0);
 				m_pfTransmissionR[nY*m_nWid+nX] = pfSumTrans[nY*m_nWid+nX]/pfWeiSum[nY*m_nWid+nX];
+                assert(!isnan(m_pfTransmissionR[nY * m_nWid + nX]));
 			}
 		}
 	}

@@ -67,12 +67,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\opencv-4.5.3-vc14_vc15\opencv\sources\include;D:\opencv-4.5.3-vc14_vc15\opencv\sources\modules\core\include;D:\opencv-4.5.3-vc14_vc15\opencv\sources\modules\highgui\include;D:\opencv-4.5.3-vc14_vc15\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\kpdf\pdfreader_image\image\opencv-4.5.3\include;E:\kpdf\pdfreader_image\image\opencv-4.5.3\modules\core\include;E:\kpdf\pdfreader_image\image\opencv-4.5.3\modules\highgui\include;E:\kpdf\pdfreader_image\image\opencv-4.5.3\build;E:\kpdf\pdfreader_image\image\opencv-4.5.3\modules\imgproc\include;E:\kpdf\pdfreader_image\image\opencv-4.5.3\modules\imgcodecs\include</AdditionalIncludeDirectories>
+      <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_imgproc231d.lib;opencv_core231d.lib;opencv_highgui231d.lib;opencv_legacy231d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_imgproc453d.lib;opencv_core453d.lib;opencv_highgui453d.lib;opencv_imgcodecs453d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\kpdf\pdfreader_image\image\opencv-4.5.3\lib\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -29,21 +29,21 @@
 	Return:
 		m_pfTransmission
  */
-void dehazing::TransmissionEstimationColor(int *pnImageR, int *pnImageG, int *pnImageB, float *pfTransmission,int *pnImageRP, int *pnImageGP, int *pnImageBP, float *pfTransmissionP,int nFrame, int nWid, int nHei)
+void dehazing::TransmissionEstimationColor(int *pnImageR, int *pnImageG, int *pnImageB, double *pfTransmission,int *pnImageRP, int *pnImageGP, int *pnImageBP, double *pfTransmissionP,int nFrame, int nWid, int nHei)
 {
-	int nX, nY, nXstep, nYstep;
-	float fTrans;
+	//int nX, nY, nXstep, nYstep;
+	//double fTrans;
 	
 	if(m_bPreviousFlag == true&&nFrame>0)
 	{
-		for(nY=0; nY<nHei; nY+=m_nTBlockSize)
+		for(int nY=0; nY<nHei; nY+=m_nTBlockSize)
 		{
-			for(nX=0; nX<nWid; nX+=m_nTBlockSize)
+			for(int nX=0; nX<nWid; nX+=m_nTBlockSize)
 			{
-				fTrans = NFTrsEstimationPColor(pnImageR, pnImageG, pnImageB, pnImageRP, pnImageGP, pnImageBP, pfTransmissionP, __max(nX, 0), __max(nY, 0), nWid, nHei);
-				for(nYstep=nY; nYstep<nY+m_nTBlockSize; nYstep++)
+                double fTrans = NFTrsEstimationPColor(pnImageR, pnImageG, pnImageB, pnImageRP, pnImageGP, pnImageBP, pfTransmissionP, __max(nX, 0), __max(nY, 0), nWid, nHei);
+				for(int nYstep=nY; nYstep<nY+m_nTBlockSize; nYstep++)
 				{
-					for(nXstep=nX; nXstep<nX+m_nTBlockSize; nXstep++)
+					for(int nXstep=nX; nXstep<nX+m_nTBlockSize; nXstep++)
 					{
 						pfTransmission[nYstep*nWid+nXstep] = fTrans;
 					}
@@ -53,17 +53,24 @@ void dehazing::TransmissionEstimationColor(int *pnImageR, int *pnImageG, int *pn
 	}
 	else
 	{
-		for(nY=0; nY<nHei; nY+=m_nTBlockSize)
+		for(int nY=0; nY<nHei; nY+=m_nTBlockSize)
 		{
-			for(nX=0; nX<nWid; nX+=m_nTBlockSize)
+			for(int nX=0; nX<nWid; nX+=m_nTBlockSize)
 			{
-				fTrans = NFTrsEstimationColor(pnImageR, pnImageG, pnImageB, __max(nX, 0), __max(nY, 0), nWid, nHei);
+                double fTrans = NFTrsEstimationColor(pnImageR, pnImageG, pnImageB, __max(nX, 0), __max(nY, 0), nWid, nHei);
 
-				for(nYstep=nY; nYstep<nY+m_nTBlockSize; nYstep++)
+				for(int nYstep=nY; nYstep<nY+m_nTBlockSize && nYstep < nHei; nYstep++)
 				{
-					for(nXstep=nX; nXstep<nX+m_nTBlockSize; nXstep++)
+					for(int nXstep=nX; nXstep<nX+m_nTBlockSize && nXstep < nWid; nXstep++)
 					{
-						pfTransmission[nYstep*nWid+nXstep] = fTrans;
+                        int index = nYstep * nWid + nXstep;
+                        int imax = nWid * nHei;
+                        if (index < imax) {
+                            pfTransmission[index] = fTrans;
+                        }
+                        else {
+                            assert(false);
+                        }
 					}
 				}
 			}
@@ -82,10 +89,10 @@ void dehazing::TransmissionEstimationColor(int *pnImageR, int *pnImageG, int *pn
 	Return:
 		m_pfTransmission
  */
-void dehazing::TransmissionEstimation(int *pnImageY, float *pfTransmission, int *pnImageYP, float *pfTransmissionP, int nFrame, int nWid, int nHei)
+void dehazing::TransmissionEstimation(int *pnImageY, double *pfTransmission, int *pnImageYP, double *pfTransmissionP, int nFrame, int nWid, int nHei)
 {
 	int nX, nY, nXstep, nYstep;
-	float fTrans;
+	double fTrans;
 
 	if(m_bPreviousFlag == true&&nFrame>0)
 	{
@@ -138,7 +145,7 @@ void dehazing::TransmissionEstimation(int *pnImageY, float *pfTransmission, int 
 	Return:
 		fOptTrs
  */
-float dehazing::NFTrsEstimation(int *pnImageY, int nStartX, int nStartY, int nWid, int nHei)
+double dehazing::NFTrsEstimation(int *pnImageY, int nStartX, int nStartY, int nWid, int nHei)
 {
 	int nCounter;	
 	int nX, nY;		
@@ -149,10 +156,10 @@ float dehazing::NFTrsEstimation(int *pnImageY, int nStartX, int nStartY, int nWi
 	int nSquaredOut;				// Squared value of restored image
 	int nSumofOuts;					// Sum of restored image
 	int nSumofSquaredOuts;			// Sum of squared restored image
-	float fTrans, fOptTrs;			// Transmission and optimal value
+	double fTrans, fOptTrs;			// Transmission and optimal value
 	int nTrans;						// Integer transformation 
 	int nSumofSLoss;				// Sum of loss info
-	float fCost, fMinCost, fMean;	 
+	double fCost, fMinCost, fMean;	 
 	int nNumberofPixels, nLossCount;
 
 	nEndX = __min(nStartX+m_nTBlockSize, nWid); // End point of the block
@@ -190,9 +197,9 @@ float dehazing::NFTrsEstimation(int *pnImageY, int nStartX, int nStartY, int nWi
 				nSumofOuts += nOut;
 			}
 		}
-		fMean = (float)(nSumofOuts)/(float)(nNumberofPixels);  
-		fCost = m_fLambda1 * (float)nSumofSLoss/(float)(nNumberofPixels) 
-			- ((float)nSumofSquaredOuts/(float)nNumberofPixels - fMean*fMean); 
+		fMean = (double)(nSumofOuts)/(double)(nNumberofPixels);  
+		fCost = m_fLambda1 * (double)nSumofSLoss/(double)(nNumberofPixels) 
+			- ((double)nSumofSquaredOuts/(double)nNumberofPixels - fMean*fMean); 
 		
 		if(nCounter==0 || fMinCost > fCost)
 		{
@@ -220,7 +227,7 @@ float dehazing::NFTrsEstimation(int *pnImageY, int nStartX, int nStartY, int nWi
 	Return:
 		fOptTrs
  */
-float dehazing::NFTrsEstimationColor(int *pnImageR, int *pnImageG, int *pnImageB, int nStartX, int nStartY, int nWid, int nHei)
+double dehazing::NFTrsEstimationColor(int *pnImageR, int *pnImageG, int *pnImageB, int nStartX, int nStartY, int nWid, int nHei)
 {
 	int nCounter;	
 	int nX, nY;		
@@ -231,10 +238,10 @@ float dehazing::NFTrsEstimationColor(int *pnImageR, int *pnImageG, int *pnImageB
 	int nSquaredOut;				
 	int nSumofOuts;					
 	int nSumofSquaredOuts;			
-	float fTrans, fOptTrs;			
+	double fTrans, fOptTrs;			
 	int nTrans;						
 	int nSumofSLoss;				
-	float fCost, fMinCost, fMean;	
+	double fCost, fMinCost, fMean;	
 	int nNumberofPixels, nLossCount;
 
 	nEndX = __min(nStartX+m_nTBlockSize, nWid); 
@@ -295,9 +302,9 @@ float dehazing::NFTrsEstimationColor(int *pnImageR, int *pnImageG, int *pnImageB
 				nSumofOuts += nOutR + nOutG + nOutB;
 			}
 		}
-		fMean = (float)(nSumofOuts)/(float)(nNumberofPixels);  
-		fCost = m_fLambda1 * (float)nSumofSLoss/(float)(nNumberofPixels) 
-			- ((float)nSumofSquaredOuts/(float)nNumberofPixels - fMean*fMean); 
+		fMean = (double)(nSumofOuts)/(double)(nNumberofPixels);  
+		fCost = m_fLambda1 * (double)nSumofSLoss/(double)(nNumberofPixels) 
+			- ((double)nSumofSquaredOuts/(double)nNumberofPixels - fMean*fMean); 
 
 		if(nCounter==0 || fMinCost > fCost)
 		{
@@ -326,23 +333,23 @@ float dehazing::NFTrsEstimationColor(int *pnImageR, int *pnImageG, int *pnImageB
 	Return:
 		fOptTrs
  */
-float dehazing::NFTrsEstimationP(int *pnImageY, int *pnImageYP, float *pfTransmissionP, int nStartX, int nStartY, int nWid, int nHei)
+double dehazing::NFTrsEstimationP(int *pnImageY, int *pnImageYP, double *pfTransmissionP, int nStartX, int nStartY, int nWid, int nHei)
 {
 	int nCounter;	// for find out transmission 0.1~1.0, 10 iteration 
 	int nX, nY;		// variable for index
 	int nEndX;
 	int nEndY;
 
-	float fMean;
+	double fMean;
 
 	int nOut;								
-	float fPreTrs;							
+	double fPreTrs;							
 	int nSquaredOut;						
 	int nSumofOuts;							
 	int nSumofSquaredOuts;					
 	int nTrans;								
 	int nSumofSLoss;						
-	float fCost, fMinCost, fTrans, fOptTrs;	
+	double fCost, fMinCost, fTrans, fOptTrs;	
 	int nNumberofPixels;					
 
 	nEndX = __min(nStartX+m_nTBlockSize, nWid); 
@@ -354,11 +361,11 @@ float dehazing::NFTrsEstimationP(int *pnImageY, int *pnImageYP, float *pfTransmi
 	nTrans = 427;	
 	fPreTrs = 0;
 
-	float fNewKSum = 0;						// Sum of new kappa which is multiplied the weight
-	float fNewK;							// New kappa
-	float fWi;								// Weight 
-	float fPreJ;							// evade 0 division
-	float fWsum = 0;						// Sum of weight
+	double fNewKSum = 0;						// Sum of new kappa which is multiplied the weight
+	double fNewK;							// New kappa
+	double fWi;								// Weight 
+	double fPreJ;							// evade 0 division
+	double fWsum = 0;						// Sum of weight
 	int nIdx = 0;	
 	int nLossCount;
 	
@@ -366,11 +373,11 @@ float dehazing::NFTrsEstimationP(int *pnImageY, int *pnImageYP, float *pfTransmi
 	{
 		for(nX=nStartX; nX<nEndX; nX++)
 		{
-			fPreJ = (float)(pnImageYP[nY*nWid+nX]-m_nAirlight);
+			fPreJ = (double)(pnImageYP[nY*nWid+nX]-m_nAirlight);
 			if(fPreJ != 0){
 				fWi = m_pfExpLUT[abs(pnImageY[nY*nWid+nX]-pnImageYP[nY*nWid+nX])];
 				fWsum += fWi;	
-				fNewKSum += fWi*(float)(pnImageY[nY*nWid+nX]-m_nAirlight)/fPreJ;
+				fNewKSum += fWi*(double)(pnImageY[nY*nWid+nX]-m_nAirlight)/fPreJ;
 			}
 		}
 	}
@@ -405,10 +412,10 @@ float dehazing::NFTrsEstimationP(int *pnImageY, int *pnImageYP, float *pfTransmi
 				nSumofOuts += nOut;
 			}
 		}
-		fMean = (float)(nSumofOuts)/(float)(nNumberofPixels);
-		fCost = m_fLambda1 * (float)nSumofSLoss/(float)(nNumberofPixels) // information loss cost
-			- ((float)nSumofSquaredOuts/(float)nNumberofPixels - fMean*fMean)	// contrast cost
-			+ m_fLambda2/fPreTrs/fPreTrs*fWsum/(float)nNumberofPixels*((fPreTrs-fTrans)*(fPreTrs-fTrans)*255.0f*255.0f);// fPreTrs/fPreTrs*fWsum/(float)nNumberofPixels
+		fMean = (double)(nSumofOuts)/(double)(nNumberofPixels);
+		fCost = m_fLambda1 * (double)nSumofSLoss/(double)(nNumberofPixels) // information loss cost
+			- ((double)nSumofSquaredOuts/(double)nNumberofPixels - fMean*fMean)	// contrast cost
+			+ m_fLambda2/fPreTrs/fPreTrs*fWsum/(double)nNumberofPixels*((fPreTrs-fTrans)*(fPreTrs-fTrans)*255.0f*255.0f);// fPreTrs/fPreTrs*fWsum/(double)nNumberofPixels
 
 		if(nCounter==0 || fMinCost > fCost)
 		{
@@ -436,23 +443,23 @@ float dehazing::NFTrsEstimationP(int *pnImageY, int *pnImageYP, float *pfTransmi
 	Return:
 		fOptTrs
  */
-float dehazing::NFTrsEstimationPColor(int *pnImageR, int *pnImageG, int *pnImageB, int *pnImageRP, int *pnImageGP, int *pnImageBP, float *pfTransmissionP, int nStartX, int nStartY, int nWid, int nHei)
+double dehazing::NFTrsEstimationPColor(int *pnImageR, int *pnImageG, int *pnImageB, int *pnImageRP, int *pnImageGP, int *pnImageBP, double *pfTransmissionP, int nStartX, int nStartY, int nWid, int nHei)
 {
 	int nCounter;	
 	int nX, nY;		
 	int nEndX;
 	int nEndY;
 
-	float fMean;
+	double fMean;
 
 	int nOutR, nOutG, nOutB;				
-	float fPreTrs;							
+	double fPreTrs;							
 	int nSquaredOut;						
 	int nSumofOuts;							
 	int nSumofSquaredOuts;					
 	int nTrans;								
 	int nSumofSLoss;						
-	float fCost, fMinCost, fTrans, fOptTrs;	
+	double fCost, fMinCost, fTrans, fOptTrs;	
 	int nNumberofPixels;					
 
 	nEndX = __min(nStartX+m_nTBlockSize, nWid); 
@@ -464,11 +471,11 @@ float dehazing::NFTrsEstimationPColor(int *pnImageR, int *pnImageG, int *pnImage
 	nTrans = 427;	
 	fPreTrs = 0;
 
-	float fNewKSum = 0;						
-	float fNewK;							
-	float fWiR, fWiG, fWiB;					
-	float fPreJR, fPreJG, fPreJB;			
-	float fWsum = 0;						
+	double fNewKSum = 0;						
+	double fNewK;							
+	double fWiR, fWiG, fWiB;					
+	double fPreJR, fPreJG, fPreJB;			
+	double fWsum = 0;						
 	int nIdx = 0;	
 	int nLossCount;
 
@@ -476,23 +483,23 @@ float dehazing::NFTrsEstimationPColor(int *pnImageR, int *pnImageG, int *pnImage
 	{
 		for(nX=nStartX; nX<nEndX; nX++)
 		{
-			fPreJB = (float)(pnImageBP[nY*nWid+nX]-m_anAirlight[0]);
-			fPreJG = (float)(pnImageGP[nY*nWid+nX]-m_anAirlight[1]);
-			fPreJR = (float)(pnImageRP[nY*nWid+nX]-m_anAirlight[2]);	
+			fPreJB = (double)(pnImageBP[nY*nWid+nX]-m_anAirlight[0]);
+			fPreJG = (double)(pnImageGP[nY*nWid+nX]-m_anAirlight[1]);
+			fPreJR = (double)(pnImageRP[nY*nWid+nX]-m_anAirlight[2]);	
 			if(fPreJB != 0){
 				fWiB = m_pfExpLUT[abs(pnImageB[nY*nWid+nX]-pnImageBP[nY*nWid+nX])]; 
 				fWsum += fWiB;	
-				fNewKSum += fWiB*(float)(pnImageB[nY*nWid+nX]-m_anAirlight[0])/fPreJB;
+				fNewKSum += fWiB*(double)(pnImageB[nY*nWid+nX]-m_anAirlight[0])/fPreJB;
 			}
 			if(fPreJG != 0){
 				fWiG = m_pfExpLUT[abs(pnImageG[nY*nWid+nX]-pnImageGP[nY*nWid+nX])];
 				fWsum += fWiG;
-				fNewKSum += fWiG*(float)(pnImageG[nY*nWid+nX]-m_anAirlight[1])/fPreJG;
+				fNewKSum += fWiG*(double)(pnImageG[nY*nWid+nX]-m_anAirlight[1])/fPreJG;
 			}
 			if(fPreJR != 0){
 				fWiR = m_pfExpLUT[abs(pnImageR[nY*nWid+nX]-pnImageRP[nY*nWid+nX])];
 				fWsum += fWiR;
-				fNewKSum += fWiR*(float)(pnImageR[nY*nWid+nX]-m_anAirlight[2])/fPreJR;
+				fNewKSum += fWiR*(double)(pnImageR[nY*nWid+nX]-m_anAirlight[2])/fPreJR;
 			}
 		}
 	}
@@ -551,10 +558,10 @@ float dehazing::NFTrsEstimationPColor(int *pnImageR, int *pnImageG, int *pnImage
 				nSumofOuts += nOutR + nOutG + nOutB;
 			}
 		}
-		fMean = (float)(nSumofOuts)/(float)(nNumberofPixels);
-		fCost = m_fLambda1 * (float)nSumofSLoss/(float)(nNumberofPixels)
-			- ((float)nSumofSquaredOuts/(float)nNumberofPixels - fMean*fMean)	
-			+ m_fLambda2/fPreTrs/fPreTrs*fWsum/(float)nNumberofPixels*((fPreTrs-fTrans)*(fPreTrs-fTrans)*255.0f*255.0f);
+		fMean = (double)(nSumofOuts)/(double)(nNumberofPixels);
+		fCost = m_fLambda1 * (double)nSumofSLoss/(double)(nNumberofPixels)
+			- ((double)nSumofSquaredOuts/(double)nNumberofPixels - fMean*fMean)	
+			+ m_fLambda2/fPreTrs/fPreTrs*fWsum/(double)nNumberofPixels*((fPreTrs-fTrans)*(fPreTrs-fTrans)*255.0f*255.0f);
 
 		if(nCounter==0 || fMinCost > fCost)
 		{

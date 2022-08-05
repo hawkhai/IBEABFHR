@@ -83,10 +83,10 @@ void dehazing::DownsampleImage()
 {
 	int nX, nY;
 
-	float fRatioY, fRatioX;
+	double fRatioY, fRatioX;
 	// 다운샘플링 비율 결정
-	fRatioX = (float)m_nWid/(float)320;
-	fRatioY = (float)m_nHei/(float)240;
+	fRatioX = (double)m_nWid/(double)320;
+	fRatioY = (double)m_nHei/(double)240;
 
 	for(nY=0; nY<240; nY++)
 	{
@@ -115,10 +115,10 @@ void dehazing::DownsampleImageColor()
 {
 	int nX, nY;
 
-	float fRatioY, fRatioX;
+	double fRatioY, fRatioX;
 	// 다운샘플링 비율 결정
-	fRatioX = (float)m_nWid/(float)320;
-	fRatioY = (float)m_nHei/(float)240;
+	fRatioX = (double)m_nWid/(double)320;
+	fRatioY = (double)m_nHei/(double)240;
 
 	for(nY=0; nY<240; nY++)
 	{
@@ -147,10 +147,10 @@ void dehazing::UpsampleTransmission()
 {
 	int nX, nY;
 
-	float fRatioY, fRatioX;
+	double fRatioY, fRatioX;
 	// 업샘플링 비율 결정
-	fRatioX = (float)320/(float)m_nWid;
-	fRatioY = (float)240/(float)m_nHei;
+	fRatioX = (double)320/(double)m_nWid;
+	fRatioY = (double)240/(double)m_nHei;
 
 	for(nY=0; nY<m_nHei; nY++)
 	{
@@ -176,7 +176,7 @@ void dehazing::MakeExpLUT()
 
 	for ( nIdx = 0 ; nIdx < 256; nIdx++ )
 	{
-		m_pfExpLUT[nIdx] = exp(-(float)(nIdx*nIdx)/10.0f);
+		m_pfExpLUT[nIdx] = exp(-(double)(nIdx*nIdx)/10.0f);
 	}
 }
 
@@ -213,12 +213,12 @@ void dehazing::GuideLUTMaker()
 		m_pfGuidedLUT - output table
 		
 */
-void dehazing::GammaLUTMaker(float fParameter)
+void dehazing::GammaLUTMaker(double fParameter)
 {
 	int nIdx;
 
 	for(nIdx=0; nIdx<256; nIdx++)
 	{
-		m_pucGammaLUT[nIdx] = (uchar)(pow((float)nIdx/255, fParameter)*255.0f);
+		m_pucGammaLUT[nIdx] = (uchar)(pow((double)nIdx/255, fParameter)*255.0f);
 	}
 }
