@@ -67,6 +67,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\opencv-4.5.3-vc14_vc15\opencv\sources\include;D:\opencv-4.5.3-vc14_vc15\opencv\sources\modules\core\include;D:\opencv-4.5.3-vc14_vc15\opencv\sources\modules\highgui\include;D:\opencv-4.5.3-vc14_vc15\opencv\build\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -185,6 +185,66 @@ void applyBrighten(cv::Mat& hsvV) {
     hsvV = tempk;
 }
 
+void GammaTransform(cv::Mat& image, cv::Mat& dist)
+{
+    cv::Mat imageGamma;
+    // 灰度归一化
+    image.convertTo(imageGamma, CV_64F, 1.0 / 255, 0);
+    // 伽马变换
+    double gamma = 2.2; // 1.5;
+    cv::pow(imageGamma, gamma, dist);
+    dist.convertTo(dist, CV_8U, 255, 0);
+}
+
+void GammaAssert(const cv::Mat& image, double minValCtrl, double maxValCtrl) {
+#ifdef _DEBUG
+    double minVal;
+    double maxVal;
+    cv::minMaxLoc(image, &minVal, &maxVal);
+    assert(minVal >= minValCtrl && maxVal <= maxValCtrl);
+#endif
+}
+
+// gamma correction
+// https://geek-docs.com/opencv/opencv-examples/gamma-correction.html
+cv::Mat gamma_correction(cv::Mat img) {
+    // get height and width
+    int width = img.cols;
+    int height = img.rows;
+
+    assert(img.type() == CV_8U);
+    // output image
+    cv::Mat out = cv::Mat::zeros(height, width, CV_8U);
+
+    // gamma correction
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            double val = (double)img.at<uchar>(y, x) / 255;
+            double a = 0.5;
+            double gamma = 0.5;
+            if (val <= a) {
+                double p = 1.0 - val / a;
+                assert(p >= 0 && p <= 1);
+                double value = a - a * pow(p, gamma);
+                if (value <= 0) value = 0;
+                assert(value >= 0 && value <= 1);
+                if (value >= 0.85) value = 1.0;
+                out.at<uchar>(y, x) = (uchar)(value * 255);
+            }
+            else {
+                double p = (val - a) / (1.0 - a);
+                assert(p >= 0 && p <= 1);
+                double value = a + (1.0 - a) * pow(p, gamma);
+                if (value <= 0) value = 0;
+                assert(value >= 0 && value <= 1);
+                if (value <= 0.15) value = 0;
+                out.at<uchar>(y, x) = (uchar)(value * 255);
+            }
+        }
+    }
+    return out;
+}
+
 bool brighten(const cv::Mat& src, cv::Mat& dst, int arg, std::string& name)
 {
     std::vector<cv::Mat> hsvli;
@@ -197,10 +257,14 @@ bool brighten(const cv::Mat& src, cv::Mat& dst, int arg, std::string& name)
     }
     else if (arg == 1) {
         applyBrighten(hsvV);
+        hsvV = gamma_correction(hsvV);
+        //cv::equalizeHist(hsvV, hsvV);
         name = "brighten";
     }
     else if (arg == 2) {
-        ImageBrighten().brighten(src, dst);
+        cv::Mat tempk;
+        ImageBrighten().brighten(src, tempk);
+        ImageBrighten().brighten(tempk, dst);
         name = "brighten3";
         return true;
     }

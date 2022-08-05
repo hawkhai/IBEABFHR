@@ -3,45 +3,27 @@
 #include "image_brighten.h"
 #include "Timer.h"
 
+#include <shlwapi.h> 
+#pragma comment(lib,"shlwapi.lib") 
+
 int main()
 {
-    const char* names[] = {
-        "01.png",
-            "02.png",
-            "03.jpg",
-            "04.jpg",
-            "05.jpg",
-            "06.jpg",
-            "07.jpg",
-            "08.png",
-            "09.jpg",
-            "10.jpg",
-            "11.jpg",
-            "12.jpg",
-            "13.jpg",
-            "14.jpg",
-            "15.jpg",
-            "16.jfif",
-            "17.jfif",
-            "18.png",
-    "19.jpg",
-    "20.png",
-    "21.jpg",
-    "22.jpg",
-
-        "23.jpg",
-    "24.webp",
-    "25.jpg",
-    "26.webp",
-    "27.jpg",
-
+    const char* rootdir = "E:\\kpdf\\pdfreader_image\\fastpdf-turbo\\image\\imagetest\\testdata\\contrast";
+    const char* types[] = {
+        ".png", ".jpg", ".jfif", ".webp", ".jpeg",
     };
-    int size = sizeof(names) / sizeof(names[0]);
+    int size = sizeof(types) / sizeof(types[0]);
 
-    for (int i = 0; i < size; i++) {
-        const char* name = names[i];
-        std::string fpath("E:\\kpdf\\pdfreader_image\\fastpdf-turbo\\image\\imagetest\\testdata\\contrast\\");
-        fpath.append(name);
+    for (int num = 0; num < 100; num++) {
+        std::string fpath;
+        for (int i = 0; i < size; i++) {
+            char buffer[1024];
+            sprintf_s(buffer, 1024, "%s\\%02d%s", rootdir, num, types[i]);
+            if (PathFileExistsA(buffer)) {
+                fpath = buffer;
+                break;
+            }
+        }
 
         cv::Mat image = cv::imread(fpath.c_str());
         if (image.empty()) {
@@ -56,8 +38,7 @@ int main()
                 break;
             }
 
-            std::string fpathw = fpath + ".";
-            fpathw.append(name);
+            std::string fpathw = fpath + "." + name;
             fpathw.append(".brighten.png");
             cv::imwrite(fpathw, image_brighten);
         }
