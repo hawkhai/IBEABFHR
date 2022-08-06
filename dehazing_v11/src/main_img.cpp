@@ -21,10 +21,18 @@
 int mainz(const char* input, const char* output)
 {	
 	IplImage *imInput = cvLoadImage(input, 1);
-	
-	int nWid = imInput->width;
-	int nHei = imInput->height;
-	
+    IplImage* dst_gray = cvCreateImage(cvGetSize(imInput), imInput->depth, 1);//灰度图
+    cvCvtColor(imInput, dst_gray, CV_BGR2GRAY);//得到灰度图
+    int nWid = imInput->width;
+    int nHei = imInput->height;
+
+    for (int i = 0; i < nWid * nHei; i++) {
+        unsigned char by = dst_gray->imageData[i];
+        imInput->imageData[i * 3 + 0] = by;
+        imInput->imageData[i * 3 + 1] = by;
+        imInput->imageData[i * 3 + 2] = by;
+    }
+
 	IplImage *imOutput = cvCreateImage(cvSize(nWid, nHei),IPL_DEPTH_8U, 3);
 
 	dehazing dehazingImg(nWid, nHei, 30, false, false, 5.0f, 1.0f, 40);
@@ -32,6 +40,17 @@ int mainz(const char* input, const char* output)
 	//dehazingImg.ImageHazeRemoval(imInput, imOutput);
 	//dehazingImg.ImageHazeRemovalYUV(imInput, imOutput);
 	dehazingImg.ImageHazeRemoval(imInput, imOutput);
+    if (true) {
+        for (int i = 0; i < nWid * nHei * 3; i++) {
+            unsigned char by = imOutput->imageData[i];
+            imOutput->imageData[i] = ~by;
+        }
+        dehazingImg.ImageHazeRemoval(imOutput, imInput);
+        for (int i = 0; i < nWid * nHei * 3; i++) {
+            unsigned char by = imInput->imageData[i];
+            imOutput->imageData[i] = ~by;
+        }
+    }
 		
 	cvSaveImage(output, imOutput);
 
@@ -45,7 +64,7 @@ int main(int argc, char** argv) {
     //mainz("E:\\kSource\\pythonx\\cmyk\\IBEABFHR\\dehazing_v11\\src\\building3.png",
     //      "E:\\kSource\\pythonx\\cmyk\\IBEABFHR\\dehazing_v11\\src\\building3z.png");
 
-    const char* rootdir = "E:\\kpdf\\pdfreader_image\\fastpdf-turbo\\image\\imagetest\\testdata\\contrast";
+    const char* rootdir = "D:\\kSource\\work\\pdfreader2\\fastpdf-turbo\\image\\imagetest\\testdata\\contrast";
     const char* types[] = {
         ".png", ".jpg", ".jfif", ".webp", ".jpeg",
     };

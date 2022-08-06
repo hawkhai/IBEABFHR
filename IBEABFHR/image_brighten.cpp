@@ -1,6 +1,7 @@
 ﻿#include "image_brighten.h"
 #include <algorithm>
 #include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/imgcodecs/imgcodecs.hpp>
 
 void ImageBrighten::brighten(const cv::Mat& src, cv::Mat& dst)
 {

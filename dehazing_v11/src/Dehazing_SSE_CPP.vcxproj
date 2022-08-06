@@ -67,14 +67,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\kpdf\pdfreader_image\image\opencv-4.5.3\include;E:\kpdf\pdfreader_image\image\opencv-4.5.3\modules\core\include;E:\kpdf\pdfreader_image\image\opencv-4.5.3\modules\highgui\include;E:\kpdf\pdfreader_image\image\opencv-4.5.3\build;E:\kpdf\pdfreader_image\image\opencv-4.5.3\modules\imgproc\include;E:\kpdf\pdfreader_image\image\opencv-4.5.3\modules\imgcodecs\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\kSource\work\pdfreader2\image\opencv-4.5.3\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\core\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\highgui\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\build;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\imgproc\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\imgcodecs\include</AdditionalIncludeDirectories>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opencv_imgproc453d.lib;opencv_core453d.lib;opencv_highgui453d.lib;opencv_imgcodecs453d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>E:\kpdf\pdfreader_image\image\opencv-4.5.3\lib\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\kSource\work\pdfreader2\image\opencv-4.5.3\lib\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

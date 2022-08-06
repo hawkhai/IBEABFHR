@@ -1,5 +1,6 @@
 #include <iostream>
 #include "opencv2/highgui/highgui.hpp"
+#include <opencv2/imgcodecs/imgcodecs.hpp>
 #include "image_brighten.h"
 #include "Timer.h"
 
@@ -8,7 +9,7 @@
 
 int main()
 {
-    const char* rootdir = "E:\\kpdf\\pdfreader_image\\fastpdf-turbo\\image\\imagetest\\testdata\\contrast";
+    const char* rootdir = "D:\\kSource\\work\\pdfreader2\\fastpdf-turbo\\image\\imagetest\\testdata\\contrast";
     const char* types[] = {
         ".png", ".jpg", ".jfif", ".webp", ".jpeg",
     };

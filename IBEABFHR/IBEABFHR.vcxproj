@@ -76,10 +76,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\opencv-4.5.3-vc14_vc15\opencv\sources\include;D:\opencv-4.5.3-vc14_vc15\opencv\sources\modules\core\include;D:\opencv-4.5.3-vc14_vc15\opencv\sources\modules\highgui\include;D:\opencv-4.5.3-vc14_vc15\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\kSource\work\pdfreader2\image\opencv-4.5.3\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\core\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\highgui\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\imgproc\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\imgcodecs\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\build</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>D:\2021\opencv_local\4.5.3\build\lib\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\kSource\work\pdfreader2\image\opencv-4.5.3\lib\Debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_imgproc453d.lib;opencv_highgui453d.lib;opencv_core453d.lib;opencv_imgcodecs453d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -89,10 +89,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\opencv-4.5.3-vc14_vc15\opencv\sources\include;D:\opencv-4.5.3-vc14_vc15\opencv\sources\modules\core\include;D:\opencv-4.5.3-vc14_vc15\opencv\sources\modules\highgui\include;D:\opencv-4.5.3-vc14_vc15\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\kSource\work\pdfreader2\image\opencv-4.5.3\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\core\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\modules\highgui\include;D:\kSource\work\pdfreader2\image\opencv-4.5.3\build\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>D:\opencv-4.5.3-vc14_vc15\opencv\build\x64\vc15\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\kSource\work\pdfreader2\image\opencv-4.5.3\build\x64\vc15\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_world453d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
